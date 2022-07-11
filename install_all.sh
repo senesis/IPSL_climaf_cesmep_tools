@@ -23,7 +23,7 @@
 climaf_label=${climaf_label:-spirit}
 
 # Where to get CliMAF from
-climaf_repository=${climaf_repository:-https://github.com/rigoudyg/climaf.git}
+climaf_repository=${climaf_repository:-https://github.com/rigoudyg/climaf}
 
 # The name of the CliMAF branch we will use
 climaf_branch=${climaf_branch:-run_cesmep_on_spirit_and_at_TGCC}
@@ -61,7 +61,7 @@ env_install=${env_install:-yes}
 # 3- About C-ESM-EP
 ###########################################
 # Where to get C-ESM-EP from
-cesmep_repository=${cesmep_repository:-https://github.com/jservonnat/C-ESM-EP/.git}
+cesmep_repository=${cesmep_repository:-https://github.com/jservonnat/C-ESM-EP}
 
 # Which branch of C-ESM-EP repository should be used for test
 cesmep_branch=${cesmep_branch:-master}
@@ -109,11 +109,12 @@ if [ $climaf_install = yes ] ; then
     echo "Installing Climaf branch $climaf_branch as $climaf_label, and testing it"
     #echo "-------------------------------------------------------------------------"
     bin_dir=$(mkdir -p $bin_dir; cd $bin_dir; pwd)
+    log=$(pwd)/climaf_install.log
     cd $climaf_dir
     rm -fR climaf_$climaf_label
-    git clone -b $climaf_branch $climaf_repository climaf_$climaf_label
+    git clone -b $climaf_branch $climaf_repository climaf_$climaf_label > $log 2>&1
+    [ $? -ne 0 ] && echo "Issue cloning CliMAF - See $log" && exit 1
     cd climaf_$climaf_label/tests
-    log=climaf_install.log
     test_modules="netcdfbasics period cache classes functions operators standard_operators "
     test_modules="$test_modules operators_derive operators_scripts cmacro driver dataloc "
     test_modules="$test_modules find_files html example_data_retrieval example_index_html mcdo" #example_data_plot
@@ -123,7 +124,7 @@ if [ $climaf_install = yes ] ; then
     
     echo -e "\tInstall done, beginning test"
     ./launch_tests_with_coverage.sh 1 3 "$test_modules" > $log 2>&1
-    [ $? -ne 0 ] && echo "CliMAF test did not succeed - see $(pwd)/$log" && exit 1
+    [ $? -ne 0 ] && echo "CliMAF test did not succeed - see $log" && exit 1
     #
     echo -e "\tCreating the module file for the new CliMAF environment, at $module_path "
     #
@@ -145,21 +146,22 @@ if [ $cesmep_install = yes ] ; then
     mkdir -p $cesmep_dir
     cd $cesmep_dir
     rm -fR C-ESM-EP
-    git clone -b $cesmep_branch $cesmep_repository
+    log=$(pwd)/cesemp_install.log
+    git clone -b $cesmep_branch $cesmep_repository > $log 2>&1
+    [ $? -ne 0 ] && echo "Issue cloning C-ESM-EP - See $log" && exit 1
     #
-    echo -e "\tCreating the relevant setenv file at $(pwd)/setenv_C-ESM-EP.sh "
+    echo -e "\tCreating the setenv file you should use, at: "
+    echo -e "\t\t$(pwd)/setenv_C-ESM-EP.sh "
     #
-    echo -e "\tYou should use it in your C-ESM-EP runs"
     cd C-ESM-EP
     sed -i -e "s^emodule=.*^emodule=$module_path^g"  setenv_C-ESM-EP.sh
     export CESMEP_CLIMAF_CACHE
     #
     echo -e -n "\tLaunching run_C-ESM-EP.py for url..."
     #
-    log=cesemp_install.log
     python run_C-ESM-EP.py standard_comparison url > $log
-    [ $? -ne 0 ] && echo "Issue - see $(pwd)/$log" && exit 1
-    echo -e "OK\n"
+    [ $? -ne 0 ] && echo "Issue - see $log" && exit 1
+    echo -e "OK"
     
     #
     echo -e "\tLaunching test_comparison, a clone of reference_comparison \n"
@@ -168,13 +170,15 @@ if [ $cesmep_install = yes ] ; then
     ./launch_test_comparison.sh test_comparison reference_comparison
     [ $? -ne 0 ] && echo "Issue - see above" && exit 1
     
-    echo "Please check execution of the jobs listed above, and have a look at the results"
-    echo "After job completion, you may also launch that command :"
-    echo "climaf_module=$module_path  $(pwd)/compare_results.sh"
     echo
-    echo "And don't forget to manage temporary directories : "
-    echo "   - $(pwd) "
-    echo "   - $CESMEP_CLIMAF_CACHE"
+    echo "---------------------------------------------------------------------------------"
+    echo -e "\tPlease check completion of the jobs listed above, and have a look at the results"
+    echo -e "\tAfter job completion, you may also launch this command :"
+    echo -e "\t\t$(pwd)/compare_results.sh"
+    echo
+    echo -e "\tAnd don't forget to manage temporary directories : "
+    echo -e "\t\t- $(pwd) "
+    echo -e "\t\t- $CESMEP_CLIMAF_CACHE"
 else
     exit 0
 fi
