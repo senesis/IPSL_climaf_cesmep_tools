@@ -11,8 +11,12 @@
 # THE LIST OF CONDA PACKAGES TO INSTALL ACTUALLY LIES IN CO-LOCATED
 # SCRIPT install_env.sh
 
+# Created files and dirs are made writeable by the group, except if
+# $writeable is set to no
+
 #set -e
 #set -x
+writeable=${writeable:-yes}
 
 # 1- About CliMAF
 #####################################
@@ -64,7 +68,7 @@ env_install=${env_install:-yes}
 cesmep_repository=${cesmep_repository:-https://github.com/jservonnat/C-ESM-EP}
 
 # Which branch of C-ESM-EP repository should be used for test
-cesmep_branch=${cesmep_branch:-master}
+cesmep_branch=${cesmep_branch:-spirit}
 
 # Provide a working directory for installing C-ESM-EP
 cesmep_dir=${cesmep_dir:-./}
@@ -102,6 +106,7 @@ if [ $env_install = yes ] ; then
     ANA=$conda_module where=$env_dir $dir/install_env.sh $env > $log 2>&1 
     [ $? -ne 0 ] && echo "Issue when creating the conda environment - see $log" && exit 1
     echo -e "\tOK !"
+    [ $writeable = yes] && chmod -R g+w $env_dir/$env
 fi    
 
 
@@ -114,6 +119,7 @@ if [ $climaf_install = yes ] ; then
     rm -fR climaf_$climaf_label
     git clone -b $climaf_branch $climaf_repository climaf_$climaf_label > $log 2>&1
     [ $? -ne 0 ] && echo "Issue cloning CliMAF - See $log" && exit 1
+    [ $writeable = yes] && chmod -R g+w $climaf_label
     cd climaf_$climaf_label/tests
     test_modules="netcdfbasics period cache classes functions operators standard_operators "
     test_modules="$test_modules operators_derive operators_scripts cmacro driver dataloc "
@@ -131,12 +137,14 @@ if [ $climaf_install = yes ] ; then
     sed -e "s^CLIMAF_LABEL^$climaf_label^g" -e "s^ENV_VERSION^$env_version^g" \
 	-e "s^ENV_DIR^$env_dir^g" -e "s^CONDA_DIR^$conda_dir^g" -e "s^BIN_DIR^$bin_dir^g" \
 	-e "s^CLIMAF_DIR^$climaf_dir^g" $dir/climaf_module_template > $module_path
+    [ $writeable = yes] && chmod g+w $module_path
     #
     nb_path=$bin_dir/climaf-notebook_${climaf_label}_${env_version}
     echo -e "\tCreating the binary for launching notebook at $nb_path "
     #
     sed -e "s^CLIMAF_LABEL^$climaf_label^g" -e "s^ENV_VERSION^$env_version^g" \
 	-e "s^ENV_PATH^$env_path^g" -e "s^USER_PORTS^$user_ports^g" $dir/climaf-notebook_template > $nb_path
+    [ $writeable = yes] && chmod g+w $nb_path
 fi
 
 if [ $cesmep_install = yes ] ; then 
@@ -149,6 +157,7 @@ if [ $cesmep_install = yes ] ; then
     log=$(pwd)/cesemp_install.log
     git clone -b $cesmep_branch $cesmep_repository > $log 2>&1
     [ $? -ne 0 ] && echo "Issue cloning C-ESM-EP - See $log" && exit 1
+    [ $writeable = yes] && chmod -R g+w C-ESM-EP
     #
     echo -e "\tCreating the setenv file you should use, at: "
     echo -e "\t\t$(pwd)/setenv_C-ESM-EP.sh "

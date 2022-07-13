@@ -1,26 +1,29 @@
 
-Tools for creating for CliMAF a tested conda environment, a tested
+1- Tools for creating for CliMAF a tested conda environment, a tested
 CliMAF install, a module, and a notebook launcher.
+
+2- a tool for creating a Docker container archive of this environment, plus CliMAF code; and the archive 
+
+3- doc for using this environment in C-ESM-EP, on Spirit and on TGCC's Irene 
 
 S.Sénési 07/2022
 
+
+
+1- Scripts for creating the environment
+------------------------------------
 Notes :
   - all scripts have an inline doc
   - scripts generally receive their parameters as environment variables, but have default values
   - main script also installs a CliMAF version, and provides a version of setenv_C-ESM-EP.sh
 
-Scripts
-----------
-
 basic_use.sh : shows the simplest way to use main script, install_all.sh, using a lot of default settings
-
 
 advanced_use.sh : an example that changes all settings, and is useful for development and tuning
 
-
-The call treee for the remaining scripts is :
----------------------------------------------
-install_all.sh : general driver. Set there almost all parameters. See in-line comments
+Call tree for the main script :
+install_all.sh : general driver. Set there almost all parameters. See in-line comments.
+                 It creates a module, and a notebook-climaf script
 |
 |--> install_env.sh : installer script for the conda environment. CHOOSE THERE THE LIST OF CONDA PACKAGES
      |
@@ -28,3 +31,17 @@ install_all.sh : general driver. Set there almost all parameters. See in-line co
 	  |
 	  |--> test_import_exec.py : worker for testing that python package 'works'
 	                             well (be it a python modules or an executable command)
+
+
+2- Script for creating a Docker container archive with the environment and CliMAF code
+-----------------------------------------------------------------------------------
+build_container.sh : script to run on a machine having Docker installed
+
+climaf_spirit_0.tar : result of the script : the container for branch
+		      'spirit' of CliMAF, and set '0' of conda packages
+
+
+3- Doc for using this environment on Spirit and on TGCC's Irene
+----------------------------------------------------------------
+README.spirit
+README.irene

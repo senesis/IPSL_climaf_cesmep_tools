@@ -1,0 +1,22 @@
+User guide for CliMAF on Spirit 
+--------------------------------
+
+Make a 'module load' command with argument e.g. /net/nfs/tools/Users/SU/modulefiles/jservon/climaf/spirit_0
+And refer to CLiMAF doc
+
+
+
+User guide for C-ESM-EP on Spirit
+---------------------------------
+
+The only specifics for running C-ESM-EP on spirit[1-2].ipsl.fr are :
+
+  - in standard_comparison/setenv_C-ESM-EP.sh :
+     * locate line beginning with emodule=
+     * set there the path for a module supporting climaf and cesmep, as e.g. (on july 2022)
+       /net/nfs/tools/Users/SU/modulefiles/jservon/climaf/spirit_0
+       
+  - in params_<component>.py :
+     * set a value for variable 'queue', if necessay (e.g. 'zen4', 'zen16' ...)
+
+This assumes that you have a basic setup of your spirit account
