@@ -6,7 +6,8 @@
 
 # We also use local repositories
 
-script=/net/nfs/tools/Users/SU/jservon/tools/install_all.sh
+dir=$(cd $(dirname $0); pwd)
+script=$dir/install_all.sh
 
 export env_install=yes
 export env_version=0

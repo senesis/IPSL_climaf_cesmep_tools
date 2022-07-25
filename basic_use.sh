@@ -9,7 +9,8 @@
 
 # S.Sénési - july 2022
 
-script=/net/nfs/tools/Users/SU/jservon/tools/install_all.sh
+dir=$(cd $(dirname $0); pwd)
+script=$dir/install_all.sh
 
 # Used as a suffix in names above. Allows to identify various conda packages set
 export env_version=0
