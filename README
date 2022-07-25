@@ -25,12 +25,12 @@ Call tree for the main script :
 install_all.sh : general driver. Set there almost all parameters. See in-line comments.
                  It creates a module, and a notebook-climaf script
 |
-|--> install_env.sh : installer script for the conda environment. CHOOSE THERE THE LIST OF CONDA PACKAGES
+|--> liste_module.sh : CHOOSE THERE THE LIST OF CONDA PACKAGES
+|
+|--> swiss_knife.sh : installer script for the conda environment
      |
-     |--> swiss_knife.sh : worker for conda packages installation
-	  |
-	  |--> test_import_exec.py : worker for testing that python package 'inits'
-	                             well (be it a python module or an executable command)
+     |--> test_import_exec.py : worker for testing that python package 'inits'
+	                        fine (be it a python module or an executable command)
 
 
 2- Script for creating a Docker container archive with the environment and CliMAF code

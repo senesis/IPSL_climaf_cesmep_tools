@@ -18,6 +18,9 @@
 #set -x
 writeable=${writeable:-yes}
 
+[[ $(uname -n) != spirit* ]] && \
+    echo "This script is yet validated only on Spirit; carrying on at your own risks"
+
 # 1- About CliMAF
 #####################################
 # $climaf_label is free to set; it is used :
