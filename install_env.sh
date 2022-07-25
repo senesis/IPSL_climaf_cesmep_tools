@@ -29,17 +29,18 @@ climaf_exec="cdo<2.0.4 ncl imagemagick ncview nco!=5.0.4 exiv2 perl ipython pipe
 nb_modules="jupyter jupytext papermill texlive-core"
 
 # C-ESM-EP
-cesmep_modules="cdms2 cdutil dask joblib dask-jobqueue windspharm pandas regionmask geopandas gdal matplotlib  basemap"
+cesmep_modules="cdms2 cdutil "
+general_modules="dask joblib dask-jobqueue windspharm pandas regionmask geopandas gdal matplotlib  basemap"
 r_modules="r-irkernel r-evd r-ncdf4 r-foreach r-doParallel r-goftest Cython"
 
 #ESMValTool
 evt_modules="esmvaltool iris"
 
 # Aggregates all modules
-modules="$climaf_modules $climaf_exec $cesmep_modules $nb_modules $evt_modules $r_modules "
+modules="$climaf_modules $climaf_exec $cesmep_modules $general_modules $nb_modules $evt_modules $r_modules "
 
 # Set variables used by swiss_knife.sh, and call it
-export create=yes install=yes mamba=no env=$env_name mamba=yes
+export create=yes install=yes env=$env_name mamba=yes
 
 # execute co-located tool
 dir=$(cd $(dirname $0); pwd)

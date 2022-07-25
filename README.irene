@@ -22,5 +22,5 @@ tools (such as thredds_cp), you just have to :
 
       env_name=climaf_spirit_0
 
-- in params_<component>.py , set a value for variable 'account'
-  (project allocating compute hours )
+- in settings.py , set a value for variable 'account' (project
+  allocating compute hours )

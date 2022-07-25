@@ -29,8 +29,8 @@ install_all.sh : general driver. Set there almost all parameters. See in-line co
      |
      |--> swiss_knife.sh : worker for conda packages installation
 	  |
-	  |--> test_import_exec.py : worker for testing that python package 'works'
-	                             well (be it a python modules or an executable command)
+	  |--> test_import_exec.py : worker for testing that python package 'inits'
+	                             well (be it a python module or an executable command)
 
 
 2- Script for creating a Docker container archive with the environment and CliMAF code
@@ -39,6 +39,7 @@ build_container.sh : script to run on a machine having Docker installed
 
 climaf_spirit_0.tar : result of the script : the container for branch
 		      'spirit' of CliMAF, and set '0' of conda packages
+		      This (large) file is not included in the repository
 
 
 3- Doc for using this environment on Spirit and on TGCC's Irene
