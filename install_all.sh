@@ -101,9 +101,13 @@ if [ $env_install = yes ] ; then
     echo "Creating conda environment $env - this may take quite a while"
     #echo "-------------------------------------------------------------"
     log=env_install.log
-    # Please set in next script the list of conda packages to install
-    # and the place to install to
-    ANA=$conda_module where=$env_dir $dir/install_env.sh $env > $log 2>&1 
+    # Init variables for swiss_knife.sh
+    export ANA=$conda_module  where=$env_dir python="python=3.9" channels="-c conda-forge -c r"
+    export env=$env create=yes install=yes  mamba=yes 
+    # Source list of modules
+    . $dir/liste_modules.sh
+    $dir/swiss_knife.sh "$modules" > $log 2>&1
+
     [ $? -ne 0 ] && echo "Issue when creating the conda environment - see $log" && exit 1
     echo -e "\tOK !"
     [ $writeable = yes] && chmod -R g+w $env_dir/$env
