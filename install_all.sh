@@ -126,7 +126,7 @@ if [ $climaf_install = yes ] ; then
     rm -fR climaf_$climaf_label
     git clone -b $climaf_branch $climaf_repository climaf_$climaf_label > $log 2>&1
     [ $? -ne 0 ] && echo "Issue cloning CliMAF - See $log" && exit 1
-    [ $writeable = yes ] && chmod -R g+w $climaf_label
+    [ $writeable = yes ] && chmod -R g+w climaf_$climaf_label
     cd climaf_$climaf_label/tests
     test_modules="netcdfbasics period cache classes functions operators standard_operators "
     test_modules="$test_modules operators_derive operators_scripts cmacro driver dataloc "
@@ -138,6 +138,7 @@ if [ $climaf_install = yes ] ; then
     echo -e "\tInstall done, beginning test"
     ./launch_tests_with_coverage.sh 1 3 "$test_modules" > $log 2>&1
     [ $? -ne 0 ] && echo "CliMAF test did not succeed - see $log" && exit 1
+    echo -e "\t OK"
     #
     echo -e "\tCreating the module file for the new CliMAF environment, at $module_path "
     #
@@ -162,7 +163,7 @@ if [ $cesmep_install = yes ] ; then
     cd $cesmep_dir
     rm -fR C-ESM-EP
     log=$(pwd)/cesemp_install.log
-    git clone -b $cesmep_branch $cesmep_repository > $log 2>&1
+    git clone -b $cesmep_branch $cesmep_repository C-ESM-EP #> $log 2>&1
     [ $? -ne 0 ] && echo "Issue cloning C-ESM-EP - See $log" && exit 1
     [ $writeable = yes ] && chmod -R g+w C-ESM-EP
     #
@@ -174,11 +175,12 @@ if [ $cesmep_install = yes ] ; then
     export CESMEP_CLIMAF_CACHE
     #
     echo -e -n "\tLaunching run_C-ESM-EP.py for url..."
-    #
+    # Want to make sure that created module alone is enough for a successful run
+    module purge ; PYTHONPATH="" ;
+    module load $module_path
     python run_C-ESM-EP.py standard_comparison url > $log
     [ $? -ne 0 ] && echo "Issue - see $log" && exit 1
     echo -e "OK"
-    
     #
     echo -e "\tLaunching test_comparison, a clone of reference_comparison \n"
     #

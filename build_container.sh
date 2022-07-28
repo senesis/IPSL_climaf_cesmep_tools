@@ -117,8 +117,8 @@ cat > Dockerfile <<-EOF
 	RUN apt-get -y update && \\
 	    apt-get -y install apt-utils 
 	RUN apt-get install -y wget && \\
-	    apt-get clean && \\
 	    apt-get -y install pdftk && \\
+	    apt-get clean && \\
 	    rm -rf /var/lib/apt/lists/*
 	
 	# Install miniconda or minimamba
@@ -136,7 +136,7 @@ cat > Dockerfile <<-EOF
 	# Install relevant conda environment from yml file
 	WORKDIR /src
 	COPY env.yml .
-	RUN mamba update -y mamba && \
+	RUN mamba update -y mamba && \\
 	    mamba env create --name ${env_name} --file env.yml && \\
 	    mamba clean --all -y
 	
