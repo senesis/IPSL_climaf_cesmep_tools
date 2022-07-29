@@ -73,7 +73,8 @@ cesmep_repository=${cesmep_repository:-https://github.com/jservonnat/C-ESM-EP}
 # Which branch of C-ESM-EP repository should be used for test
 cesmep_branch=${cesmep_branch:-spirit}
 
-# Provide a working directory for installing C-ESM-EP
+# Provide a directory for installing C-ESM-EP. It will hold a useful
+# setenv_C-ESM-EP.sh, that invokes the relevant module 
 cesmep_dir=${cesmep_dir:-./}
 
 # If you set CESMEP_CLIMAF_CACHE to the empty string, your standard
@@ -127,21 +128,21 @@ if [ $climaf_install = yes ] ; then
     git clone -b $climaf_branch $climaf_repository climaf_$climaf_label > $log 2>&1
     [ $? -ne 0 ] && echo "Issue cloning CliMAF - See $log" && exit 1
     [ $writeable = yes ] && chmod -R g+w climaf_$climaf_label
-    cd climaf_$climaf_label/tests
+
+    echo -e "\tInstall done, beginning test"
     test_modules="netcdfbasics period cache classes functions operators standard_operators "
     test_modules="$test_modules operators_derive operators_scripts cmacro driver dataloc "
     test_modules="$test_modules find_files html example_data_retrieval example_index_html mcdo" #example_data_plot
     module load $conda_module 
     conda deactivate 
     conda activate $env_path || (echo "Issue activating $env_path" ; exit 1)
-    
-    echo -e "\tInstall done, beginning test"
+    cd climaf_$climaf_label/tests
     ./launch_tests_with_coverage.sh 1 3 "$test_modules" > $log 2>&1
     [ $? -ne 0 ] && echo "CliMAF test did not succeed - see $log" && exit 1
     echo -e "\t OK"
+    conda deactivate
     #
     echo -e "\tCreating the module file for the new CliMAF environment, at $module_path "
-    #
     sed -e "s^CLIMAF_LABEL^$climaf_label^g" -e "s^ENV_VERSION^$env_version^g" \
 	-e "s^ENV_DIR^$env_dir^g" -e "s^CONDA_DIR^$conda_dir^g" -e "s^BIN_DIR^$bin_dir^g" \
 	-e "s^CLIMAF_DIR^$climaf_dir^g" $dir/climaf_module_template > $module_path
@@ -149,7 +150,6 @@ if [ $climaf_install = yes ] ; then
     #
     nb_path=$bin_dir/climaf-notebook_${climaf_label}_${env_version}
     echo -e "\tCreating the binary for launching notebook at $nb_path "
-    #
     sed -e "s^CLIMAF_LABEL^$climaf_label^g" -e "s^ENV_VERSION^$env_version^g" \
 	-e "s^ENV_PATH^$env_path^g" -e "s^USER_PORTS^$user_ports^g" $dir/climaf-notebook_template > $nb_path
     [ $writeable = yes ] && chmod g+w $nb_path
@@ -157,7 +157,7 @@ fi
 
 if [ $cesmep_install = yes ] ; then 
     echo "Installing C-ESM-EP code and launching a reference comparison"
-    echo "-------------------------------------------------------------"
+    #echo "-------------------------------------------------------------"
     echo -e "\tCloning C-ESM-EP branch $cesmep_branch"
     mkdir -p $cesmep_dir
     cd $cesmep_dir
@@ -176,7 +176,8 @@ if [ $cesmep_install = yes ] ; then
     #
     echo -e -n "\tLaunching run_C-ESM-EP.py for url..."
     # Want to make sure that created module alone is enough for a successful run
-    module purge ; PYTHONPATH="" ;
+    module purge ;
+    PYTHONPATH="" 
     module load $module_path
     python run_C-ESM-EP.py standard_comparison url > $log
     [ $? -ne 0 ] && echo "Issue - see $log" && exit 1
