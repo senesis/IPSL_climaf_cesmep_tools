@@ -15,9 +15,9 @@ S.Sénési 07/2022
 Notes :
   - all scripts have an inline doc
   - scripts generally receive their parameters as environment variables, but have default values
-  - main script also installs a CliMAF version, and provides a version of setenv_C-ESM-EP.sh
+  - main script is install_all.sh; it also installs a CliMAF version, and provides a version of setenv_C-ESM-EP.sh
 
-basic_use.sh : shows the simplest way to use main script, install_all.sh, using a lot of default settings
+basic_use.sh : shows the simplest way to use main script, using a lot of default settings
 
 advanced_use.sh : an example that changes all settings, and is useful for development and tuning
 

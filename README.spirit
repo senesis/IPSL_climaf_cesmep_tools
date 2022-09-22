@@ -1,7 +1,7 @@
 User guide for CliMAF on Spirit 
 --------------------------------
 
-Make a 'module load' command with argument e.g. /net/nfs/tools/Users/SU/modulefiles/jservon/climaf/spirit_0
+Issue a 'module load' command with argument e.g. /net/nfs/tools/Users/SU/modulefiles/jservon/climaf/spirit_0
 And refer to CLiMAF doc
 
 

@@ -3,6 +3,7 @@
 # Create an archive for that container and push it to Irene
 
 # Author : S.Sénési - june 2022
+# Changes : 14 sept 2022 : activate conda environment in docker env by setting environment variables
 
 # Pre-requisites :
 #------------------
@@ -56,8 +57,11 @@ ubuntu_version="20.04"
 # Name or full path of the reference conda environment
 remote_conda_env=/net/nfs/tools/Users/SU/jservon/spirit-2021.11_envs/climaf_spirit_0
 
+# Version of the Dockerfile created by this very script
+docker_file=${docker_file:-"2"}
+
 # May choose a name for the created conda environment, or use a sensible default
-env_name=$(basename $remote_conda_env)
+env_name=${env_name:-$(basename $remote_conda_env)}_${docker_file}
 
 # user@machine for the machine used as a gateway to Irene (for scp)
 gateway=ssenesi@ciclad.ipsl.upmc.fr
@@ -114,23 +118,21 @@ cat > Dockerfile <<-EOF
 	FROM ubuntu:$ubuntu_version
 	
 	# Install wget (for getting miniconda) and pdftk (for CliMAF)
-	RUN apt-get -y update && \\
-	    apt-get -y install apt-utils 
-	RUN apt-get install -y wget && \\
-	    apt-get -y install pdftk && \\
+	RUN apt-get -y update --fix-missing && \\
+	    apt-get -y install --fix-missing apt-utils 
+	RUN apt-get install -y --fix-missing wget && \\
+	    apt-get install -y --fix-missing pdftk && \\
 	    apt-get clean && \\
 	    rm -rf /var/lib/apt/lists/*
 	
-	# Install miniconda or minimamba
+	# Install minimamba
 	ENV CONDA_DIR=/opt/mamba
-	#RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
-	#    /bin/bash ~/miniconda.sh -b -p /opt/conda
 	RUN wget --quiet \\
 	            https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh \\
 	     	    -O ~/minimamba.sh && \\
 	    /bin/bash ~/minimamba.sh -b -p /opt/mamba
 	
-	# Put conda in path so we can use conda activate
+	# Put mamba in path 
 	ENV PATH=\$CONDA_DIR/bin:\$PATH
 	
 	# Install relevant conda environment from yml file
@@ -139,12 +141,19 @@ cat > Dockerfile <<-EOF
 	RUN mamba update -y mamba && \\
 	    mamba env create --name ${env_name} --file env.yml && \\
 	    mamba clean --all -y
-	
+
+	# Pseudo-activate that conda env for runtime
+	ENV PATH=\$CONDA_DIR/envs/${env_name}/bin:\$CONDA_DIR/condabin:\$PATH
+	ENV LD_LIBRARY_PATH=\$CONDA_DIR/envs/${env_name}/lib:\$LD_LIBRARY_PATH
+
 	# Install CliMAF 
 	COPY climaf /src/climaf	
-	ENV PYTHONPATH=/src/climaf:\$PYTHONPATH
 	ENV PATH=/src/climaf/bin:\$PATH
-	
+	ENV PYTHONPATH=/src/climaf:\$PYTHONPATH
+
+	# Prepare for run time	
+	WORKDIR /home
+	ENV PATH=\$PATH:/ccc/cont003/home/igcmg/igcmg/Tools/irene  
 	CMD ["bash"]
 	EOF
 
