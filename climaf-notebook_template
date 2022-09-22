@@ -5,6 +5,7 @@ Launching jupyter for running python3 CliMAF and CESMEP notebooks on spirit with
 climaf_label=${1:-CLIMAF_LABEL}
 env_version=${2:-ENV_VERSION}
 
+set -e
 USER=$( whoami )
 myport=$( cat USER_PORTS | grep $USER | awk "-F " '{print $2 }' )
 
@@ -15,18 +16,13 @@ then
    lsof|grep "$myport (LISTEN)" 
    exit 1
 fi
-
-SHORT_HOST="$(hostname -s)"
+SHORT_HOST="$(hostname -f)"
 case $SHORT_HOST in
-    spirit|spirit2)
-	echo -e  "\033[1;31mplease do not run this on login node $SHORT_HOST use:\033[m"
-	echo -e  "First, submit an interactive session then load module and run notebook:" 
-	echo -e  "\033[1;31mYou could cut and past the 3 command line under:\033[m"
-	echo -e  "srun --mem-per-cpu=9G  --time=240 "
-	echo -e  "module load ENV_PATH"
-	echo -e  "climaf-notebook"
+    spirit1.*|spirit2.*|spirit.*)
+	echo -e  "\033[1;31mPlease do not run this on login node $SHORT_HOST but use e.g.:\033[m"
+	echo -e  "srun --pty --mem-per-cpu=9G  --time=240 $0"
 	exit 1 ;;
-    spirit*)
+   spirit*)
 	SSH_TUNNEL="ssh -L ${myport}:${SHORT_HOST}:${myport} ${USER}@spirit1.ipsl.fr" 
 	address= ;; 
     *) echo "Machine not handled" ; exit  ;; 
@@ -34,7 +30,7 @@ esac
 
 echo
 echo -e "\033[1;31m FIRST STEP: Open your port \033[m"
-echo "     - open a terminal on your computer (!! NOT on Spirit, Ciclad, Loholt, Cerbere, Idefix... on your local machine)"
+echo "     - open a terminal on your computer (!! NOT on Spirit, Ciclad, Loholt, Cerbere, Idefix... but on your local machine)"
 echo "     - and connect to the Mesocenter with this blue command: "
 echo -e "\033[1;34m $SSH_TUNNEL \033[m"
 echo
@@ -43,7 +39,7 @@ echo
 
 
 echo -e "\033[1;31m SECOND STEP: \033[m"
-echo "    - amog the url below (returned by Jupyter), choose the one with '127.0.0.1'"
+echo "    - among the url below (returned by Jupyter), choose the one with '127.0.0.1'"
 echo "    - and paste in a browser on your computer (Chrome, Firefox...)"
 echo
 echo -e "\033[1;31m Have fun! \033[m"
@@ -53,6 +49,6 @@ echo -e "\033[1;31m (wait until Jupyter returns the url... it might take some se
 module load ENV_PATH/climaf_${climaf_label}_${env_version}
 
 set -x
-jupyter notebook --no-browser --port=${myport} --ip=$SHORT_HOST
+jupyter notebook --no-browser --port=${myport} --ip=0.0.0.0
 # dommage ca marche pas 2>&1 |sed -e 's/$SHORT_HOST/localhost/'
 
