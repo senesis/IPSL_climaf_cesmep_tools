@@ -9,18 +9,5 @@ tools (such as thredds_cp), you just have to :
 - copy a version of C-ESM-EP code that can use pcocc at TGCC; in
   july 2022, this is the case for branch 'spirit'
 
-- tell tool 'pcocc' to know about the docker container archive that
-  brings the conda environment relevant for running CliMAF and
-  C-ESM-EP in the same way as e.g. on spirit :
-  
-       container=/ccc/work/cont003/gen0826/senesis/docker_archives/climaf_spirit_0.tar
-       pcocc image import docker-archive:$container climaf
-
-- in setenv_C-ESM-EP.sh, in section for TGCC, set variable 'env_name' to
-  the name of the conda environment provided by that container, as
-  e.g. :
-
-      env_name=climaf_spirit_0
-
 - in settings.py , set a value for variable 'account' (project
-  allocating compute hours )
+  allocating compute hours)

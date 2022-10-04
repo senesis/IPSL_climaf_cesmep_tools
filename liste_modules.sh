@@ -28,7 +28,7 @@ r_modules="r-irkernel r-evd r-ncdf4 r-foreach r-doParallel r-goftest Cython"
 evt_modules="esmvaltool iris"
 
 # General modules
-general_modules="dask joblib dask-jobqueue windspharm pandas regionmask geopandas gdal matplotlib  basemap"
+general_modules="dask joblib dask-jobqueue windspharm pandas regionmask geopandas gdal matplotlib  basemap global-land-mask"
 
 # Aggregates all modules
 modules="$system_modules $climaf_modules $climaf_exec $cesmep_modules $general_modules $nb_modules $evt_modules $r_modules "

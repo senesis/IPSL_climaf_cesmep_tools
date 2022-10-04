@@ -2,15 +2,6 @@
 
 # Set environment for using CliMAF and CESMEP
 
-set version CLIMAF_LABEL_ENV_VERSION
-
-# Which is the conda base environment used to build the CliMAF/CESMEP
-# conda environment
-set topdir CONDA_DIR
-
-set envdir ENV_DIR/climaf_$version
-set climafdir CLIMAF_DIR/climaf_CLIMAF_LABEL
-
 # Provide command climaf-notebook
 prepend-path    PATH            BIN_DIR
 
@@ -18,19 +9,17 @@ prepend-path    PATH            BIN_DIR
 prepend-path    PATH            /home/lvignon/bin
 
 # Provide command 'climaf'
-prepend-path    PATH            $climafdir/bin
+prepend-path    PATH            CLIMAF_DIR/bin
 
 # Provide conda base environment binaries
-prepend-path    PATH            $topdir/bin
+prepend-path    PATH            CONDA_DIR/bin
 
 # Provide conda environment binaries
-prepend-path    PATH            $envdir/bin
+prepend-path    PATH            CONDA_ENV/bin
 
 # Similar for libraries and python modules
-prepend-path    LD_LIBRARY_PATH $envdir/lib
-prepend-path    PYTHONPATH      $climafdir
-
-setenv CLIMAF $climafdir
+prepend-path    LD_LIBRARY_PATH CONDA_ENV/lib
+prepend-path    PYTHONPATH      CLIMAF_DIR
 
 # Next for CDMS2
 setenv HDF5_DISABLE_VERSION_CHECK 1

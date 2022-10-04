@@ -9,7 +9,7 @@
 script=/net/nfs/tools/Users/SU/jservon/tools/install_all.sh
 
 export env_install=yes
-export env_version=0
+export env_label=0
 export env_dir=./envs
 
 export climaf_install=yes 

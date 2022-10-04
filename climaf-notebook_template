@@ -2,8 +2,7 @@
 doc="""
 Launching jupyter for running python3 CliMAF and CESMEP notebooks on spirit with display on local browser
 """
-climaf_label=${1:-CLIMAF_LABEL}
-env_version=${2:-ENV_VERSION}
+modulep=${1:-MODULE_PATH}
 
 set -e
 USER=$( whoami )
@@ -46,7 +45,7 @@ echo -e "\033[1;31m Have fun! \033[m"
 echo
 echo -e "\033[1;31m (wait until Jupyter returns the url... it might take some seconds...) \033[m"
 
-module load ENV_PATH/climaf_${climaf_label}_${env_version}
+module load $modulep
 
 set -x
 jupyter notebook --no-browser --port=${myport} --ip=0.0.0.0
