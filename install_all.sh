@@ -8,10 +8,12 @@
 
 # S.Sénési 07/2022
 
-# THE LIST OF CONDA PACKAGES TO INSTALL ACTUALLY LIES IN CO-LOCATED
-# SCRIPT install_env.sh
+# THE LIST OF CONDA PACKAGES TO INSTALL IS PROVIDED USING ENVIRONMENT
+# VARIABLE 'modules' OR (IF IT IS NOT SET) BY SOURCING COLOCATED
+# SCRIPT liste_modules.sh. For reference, this list is copied in the
+# conda environment root directory, in file 'packages_list'
 
-# Install locations use parameters defined below. They are :
+# install locations use parameters defined below. They are :
 # ----------------------------------------------------------
 #  - for climaf-notebook script: $bin_dir/climaf-notebook_${climaf_label}_${env_label}
 #  - for environment module    : $module_dir/${climaf_label}_${env_label}
@@ -69,7 +71,7 @@ conda_dir=${conda_dir:-/net/nfs/tools/python-anaconda/Anaconda3-2021.11/}
 #/net/nfs/tools/python-anaconda/miniconda3
 
 # The label for the created conda_environment
-env_label=${env_label:-env_for_climaf}
+env_label=${env_label:-climafenv_$(date +%Y%m%d)}
 
 env_dir=${env_dir:-/net/nfs/tools/Users/SU/jservon/spirit-2021.11_envs}
 
@@ -124,13 +126,16 @@ if [ $env_install = yes ] ; then
     # Init variables for swiss_knife.sh
     export ANA=$conda_module  where=$env_dir python="python=3.9" channels="-c conda-forge -c r"
     export env=$env_label create=yes install=yes  mamba=yes 
-    # Source list of modules
-    . $dir/liste_modules.sh
+    # Source list of packages/modules if not set through an env. variable
+    [ -z $modules ] && . $dir/liste_modules.sh
     $dir/swiss_knife.sh "$modules" > $log 2>&1
 
     [ $? -ne 0 ] && echo "Issue when creating the conda environment - see $log" && exit 1
+    
+    # Copy packages list in the environment root dir
+    echo "modules=\"$modules\"" > $env_path/packages_list
     echo -e "\tOK !"
-    [ $writeable = yes ] && chmod -R g+w $env_dir/$env_label
+    [ $writeable = yes ] && chmod -R g+w $env_path
 fi    
 
 
