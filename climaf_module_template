@@ -24,3 +24,5 @@ prepend-path    PYTHONPATH      CLIMAF_DIR
 # Next for CDMS2
 setenv HDF5_DISABLE_VERSION_CHECK 1
 setenv UVCDAT_ANONYMOUS_LOG False
+
+puts stderr "CliMAF version is CLIMAF_LABEL"

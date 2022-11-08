@@ -21,6 +21,7 @@
 #  - for a setenv_C-ESM-EP.sh  : $cesmep_dir/setenv_C-ESM-EP.sh
 #  - for climaf                : $climaf_dir/climaf_${climaf_label}
 #  - for conda environment     : $env_dir/${env_label} 
+#  - list of conda packages    : $env_dir/$env_label/packages_list
 
 # Any of the three steps (CliMAF install, C-ESM-EP install, conda
 # environment creation) can be skipped using parameters
@@ -61,7 +62,6 @@ user_ports=/net/nfs/tools/Users/SU/jservon/notebook_user_port.txt
 
 # Should we actually install and test CliMAF
 climaf_install=${climaf_install:-yes}
-
 
 # 2- About the conda environment
 ########################################
@@ -105,7 +105,7 @@ cesmep_install=${cesmep_install:-yes}
 env_path=$env_dir/$env_label
 
 [ ${setx:-no} = yes ] && set +x
-module purge
+module -s purge
 [ ${setx:-no} = yes ] && set -x
 
 dir=$(cd $(dirname $0); pwd)
@@ -115,12 +115,11 @@ climaf_dir=$(mkdir -p $climaf_dir ; cd $climaf_dir; pwd)
 module_dir=$(mkdir -p $module_dir ; cd $module_dir; pwd)
 bin_dir=$(mkdir -p $bin_dir ; cd $bin_dir; pwd)
 
-module_path=$module_dir/${climaf_label}_${env_label}
-nb_path=$bin_dir/climaf-notebook_${climaf_label}_${env_label}
-
+module_path=$module_dir/${env_label}_${climaf_label}
+nb_path=$bin_dir/climaf-notebook_${env_label}_${climaf_label}
 
 if [ $env_install = yes ] ; then 
-    echo "Creating conda environment $env_label - this may take quite a while"
+    echo "\tCreating conda environment $env_label - this may take quite a while"
     #echo "-------------------------------------------------------------"
     log=env_install.log
     # Init variables for swiss_knife.sh
@@ -134,13 +133,13 @@ if [ $env_install = yes ] ; then
     
     # Copy packages list in the environment root dir
     echo "modules=\"$modules\"" > $env_path/packages_list
-    echo -e "\tOK !"
+    echo -e "\tOK ! \n\Packages list is available at $env_path/packages_list"
     [ $writeable = yes ] && chmod -R g+w $env_path
 fi    
 
 
 if [ $climaf_install = yes ] ; then 
-    echo -e "\tInstalling Climaf branch $climaf_branch in: "
+    echo -e "\tInstalling Climaf branch $climaf_branch at: "
     echo -e "\t\t$climaf_dir/climaf_$climaf_label"
     #echo "------------------------------------------------------------------------------------------"
     bin_dir=$(mkdir -p $bin_dir; cd $bin_dir; pwd)
@@ -170,7 +169,7 @@ if [ $climaf_install = yes ] ; then
     #
     echo -e "\tCreating the module file for the new CliMAF environment, at \n\t\t$module_path "
     sed -e "s^CLIMAF_DIR^${climaf_dir}/climaf_${climaf_label}^g" -e "s^CONDA_ENV^${env_path}^g" \
-	-e "s^CONDA_DIR^$conda_dir^g" -e "s^BIN_DIR^$bin_dir^g" \
+	-e "s^CONDA_DIR^$conda_dir^g" -e "s^BIN_DIR^$bin_dir^g" -e "s^CLIMAF_LABEL^$climaf_label^g" \
 	$dir/climaf_module_template > $module_path
     [ $writeable = yes ] && chmod g+w $module_path
     #
@@ -181,36 +180,36 @@ if [ $climaf_install = yes ] ; then
 fi
 
 if [ $cesmep_install = yes ] ; then 
-    echo "Installing C-ESM-EP code and launching a reference comparison"
+    echo -e "\tInstalling C-ESM-EP code and launching a reference comparison"
     #echo "-------------------------------------------------------------"
-    echo -e "\tCloning C-ESM-EP branch $cesmep_branch"
+    echo -e "\t\tCloning C-ESM-EP branch $cesmep_branch"
     mkdir -p $cesmep_dir
     cd $cesmep_dir
     rm -fR C-ESM-EP
-    log=$(pwd)/cesemp_install.log
-    git clone -b $cesmep_branch $cesmep_repository C-ESM-EP #> $log 2>&1
+    log=$(pwd)/cesmep_install.log
+    git clone -b $cesmep_branch $cesmep_repository C-ESM-EP > $log 2>&1
     [ $? -ne 0 ] && echo "Issue cloning C-ESM-EP - See $log" && exit 1
     [ $writeable = yes ] && chmod -R g+w C-ESM-EP
     #
-    echo -e "\tCreating the setenv file you should use, at: "
-    echo -e "\t\t$(pwd)/setenv_C-ESM-EP.sh "
     #
     cd C-ESM-EP
+    echo -e "\t\tCreating the setenv file you should use, at: "
+    echo -e "\t\t\t$(pwd)/setenv_C-ESM-EP.sh "
     sed -i -e "s^emodule=.*^emodule=$module_path^g"  setenv_C-ESM-EP.sh
     export CESMEP_CLIMAF_CACHE
     #
-    echo -e -n "\tLaunching run_C-ESM-EP.py for url..."
+    echo -e -n "\t\tLaunching run_C-ESM-EP.py with arg 'url'..."
     # Want to make sure that created module alone is enough for a successful run
     [ ${setx:-no} = yes ] && set +x    
-    module purge ;
+    module -s purge 
     PYTHONPATH="" 
-    module load $module_path
+    module -s load $module_path
     [ ${setx:-no} = yes ] && set -x
     python run_C-ESM-EP.py standard_comparison url > $log
-    [ $? -ne 0 ] && echo "Issue - see $log" && exit 1
+    [ $? -ne 0 ] && echo "\nIssue - see $log" && exit 1
     echo -e "OK"
     #
-    echo -e "\tLaunching test_comparison, a clone of reference_comparison \n"
+    echo -e "\t\tLaunching test_comparison, a clone of reference_comparison \n"
     #
     cd tests
     ./launch_test_comparison.sh test_comparison reference_comparison

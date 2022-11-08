@@ -13,7 +13,7 @@
 system_modules=""  
 
 # CliMAF
-climaf_modules="natsort ujson xarray netcdf4 cftime yaml pyyaml sphinx"
+climaf_modules="natsort ujson xarray netcdf4 h5netcdf cftime yaml pyyaml sphinx"
 climaf_exec="cdo<2.0.4 ncl imagemagick ncview nco!=5.0.4 exiv2 perl ipython pipenv "
 # Note: CliMAF also needs pdftk, but there is no conda package for that, only a Ubuntu package
 
@@ -28,7 +28,8 @@ r_modules="r-irkernel r-evd r-ncdf4 r-foreach r-doParallel r-goftest Cython"
 evt_modules="esmvaltool iris"
 
 # General modules
-general_modules="dask joblib dask-jobqueue windspharm pandas regionmask geopandas gdal matplotlib  basemap global-land-mask"
+general_modules="dask joblib dask-jobqueue windspharm pandas regionmask geopandas gdal matplotlib  basemap "
+#general_modules="dask joblib dask-jobqueue windspharm pandas regionmask geopandas gdal matplotlib  basemap global-land-mask"
 
 # Aggregates all modules
 modules="$system_modules $climaf_modules $climaf_exec $cesmep_modules $general_modules $nb_modules $evt_modules $r_modules "
