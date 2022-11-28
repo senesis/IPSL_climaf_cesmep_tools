@@ -24,8 +24,9 @@ basic_use.sh : shows the simplest way to use main script, using a lot of default
 advanced_use.sh : an example that changes all settings, and is useful for development and tuning
 
 Call tree for the main script :
+
 install_all.sh : general driver. Set there almost all parameters. See in-line comments.
-                 It creates a module, and a notebook-climaf script
+                 It creates a module, and a notebook script
 |
 |--> liste_module.sh : CHOOSE THERE THE LIST OF CONDA PACKAGES
 |

@@ -6,7 +6,7 @@
 export test_install_dir=/scratchu/ssenesi/test_install
 
 export climaf_branch=V3.0
-export cesmep_branch=spirit_ClimafV3.0
+export cesmep_branch=spirit_ClimafV3
 
 # We must execute from a location with write permission, let us choose the install dir
 cd $test_install_dir

@@ -15,16 +15,19 @@
 
 # install locations use parameters defined below. If test_install_dir is not set, they are :
 # -------------------------------------------------------------------------------------------
-#  - for climaf-notebook script: $bin_dir/notebook_${env_label}_climaf${climaf_label}
-#  - for environment module    : $module_dir/${env_label}_climaf${climaf_label}
+#  - for climaf-notebook script: $bin_dir/notebook_env${env_label}_climaf${climaf_label}
+#  - for environment module    : $module_dir/env${env_label}_climaf${climaf_label}
 #  - for C-ESM-EP              : $cesmep_dir
 #  - for a setenv_C-ESM-EP.sh  : $cesmep_dir/setenv_C-ESM-EP.sh
 #  - for climaf                : $climaf_dir/${climaf_label}
-#  - for conda environment     : $env_dir/${env_label} 
-#  - list of conda packages    : $env_dir/$env_label/packages_list
+#  - for conda environment     : $env_dir/env${env_label} 
+#  - list of conda packages    : $env_dir/env${env_label}/packages_list
 
 # If test_install_dir is set, then bin_dir, module_dir, climaf_dir and env_dir are set
 # as sub-directores of test_install_dir
+
+# env_label, if not exported, is set as the current date
+# climaf_label, if not exported, is set as the climaf_branch (the label of the installed branch/tag)
 
 # Any of the three steps (CliMAF install, C-ESM-EP install, conda
 # environment creation) can be skipped using parameters
@@ -91,7 +94,7 @@ conda_dir=${conda_dir:-/net/nfs/tools/python-anaconda/Anaconda3-2021.11/}
 #/net/nfs/tools/python-anaconda/miniconda3
 
 # The label for the created conda_environment
-env_label=${env_label:-"env"$(date +%Y%m%d)}
+env_label=${env_label:-$(date +%Y%m%d)}
 
 if [ -z $test_install_dir ] ; then 
     env_dir=${env_dir:-/net/nfs/tools/Users/SU/jservon/spirit-2021.11_envs}
@@ -126,10 +129,6 @@ cesmep_install=${cesmep_install:-yes}
 # END of script parameters
 #---------------------------------------------------------------------------------------------
 
-env_path=$env_dir/$env_label
-module_path=$module_dir/${env_label}_${climaf_label}
-nb_path=$bin_dir/notebook_${env_label}_climaf${climaf_label}
-
 [ ${setx:-no} = yes ] && set +x
 module -s purge
 [ ${setx:-no} = yes ] && set -x
@@ -141,8 +140,12 @@ climaf_dir=$(mkdir -p $climaf_dir ; cd $climaf_dir; pwd)
 module_dir=$(mkdir -p $module_dir ; cd $module_dir; pwd)
 bin_dir=$(mkdir -p $bin_dir ; cd $bin_dir; pwd)
 
+env_path=$env_dir/$env_label
+module_path=$module_dir/env${env_label}_climaf${climaf_label}
+nb_path=$bin_dir/notebook_env${env_label}_climaf${climaf_label}
+
 if [ $env_install = yes ] ; then 
-    echo "\tCreating conda environment $env_label - this may take quite a while"
+    echo -e "\tCreating conda environment $env_label - this may take quite a while"
     #echo "-------------------------------------------------------------"
     log=env_install.log
     # Init variables for swiss_knife.sh
@@ -158,18 +161,19 @@ if [ $env_install = yes ] ; then
     echo "modules=\"$modules\"" > $env_path/packages_list
     echo -e "\tOK ! \n\Packages list is available at $env_path/packages_list"
     [ $writeable = yes ] && chmod -R g+w $env_path
+    chmod g+w $env_dir $log
 fi    
 
 
 if [ $climaf_install = yes ] ; then 
     echo -e "\tInstalling Climaf branch $climaf_branch at: "
-    echo -e "\t\t$climaf_dir/climaf_$climaf_label"
+    echo -e "\t\t$climaf_dir/$climaf_label"
     #echo "------------------------------------------------------------------------------------------"
     bin_dir=$(mkdir -p $bin_dir; cd $bin_dir; pwd)
     log=$(pwd)/climaf_install.log
     cd $climaf_dir
-    rm -fR climaf_$climaf_label
-    git clone -b $climaf_branch $climaf_repository climaf_${climaf_label} > $log 2>&1
+    rm -fR $climaf_label
+    git clone -b $climaf_branch $climaf_repository ${climaf_label} > $log 2>&1
     [ $? -ne 0 ] && echo "Issue cloning CliMAF - See $log" && exit 1
     [ $writeable = yes ] && chmod -R g+w climaf_$climaf_label
 
@@ -201,6 +205,7 @@ if [ $climaf_install = yes ] ; then
 	$dir/climaf-notebook_template > $nb_path
     chmod +x $nb_path
     [ $writeable = yes ] && chmod g+w $nb_path
+    chmod g+w $climaf_dir $log
 fi
 
 if [ $cesmep_install = yes ] ; then 
@@ -211,7 +216,7 @@ if [ $cesmep_install = yes ] ; then
     cd $cesmep_dir
     rm -fR C-ESM-EP
     log=$(pwd)/cesmep_install.log
-    git clone -b $cesmep_branch $cesmep_repository C-ESM-EP > $log 2>&1
+    git clone -b $cesmep_branch $cesmep_repository C-ESM-EP #> $log 2>&1
     [ $? -ne 0 ] && echo "Issue cloning C-ESM-EP - See $log" && exit 1
     [ $writeable = yes ] && chmod -R g+w C-ESM-EP
     #
@@ -230,7 +235,7 @@ if [ $cesmep_install = yes ] ; then
     module -s load $module_path
     [ ${setx:-no} = yes ] && set -x
     python run_C-ESM-EP.py standard_comparison url > $log
-    [ $? -ne 0 ] && echo "\nIssue - see $log" && exit 1
+    [ $? -ne 0 ] && echo -e "\nIssue - see $log" && exit 1
     echo -e "OK"
     #
     echo -e "\t\tLaunching test_comparison, a clone of reference_comparison \n"
@@ -248,6 +253,7 @@ if [ $cesmep_install = yes ] ; then
     echo -e "\tAnd dont forget to manage temporary directories : "
     echo -e "\t\t- $(pwd) "
     echo -e "\t\t- $CESMEP_CLIMAF_CACHE"
+    chmod g+w $log $cesmep_dir $cesmep_dir/C-ESM-EP
 else
     exit 0
 fi
