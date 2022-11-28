@@ -1,5 +1,6 @@
 #!/bin/bash
 # Use example for script install_all.sh
+# AS IS, IT WILL INSTALL AN 'OFFICIAL' ENVIRONMENT 
 
 # We use local directories as location target for conda env,
 # climaf and cesmep install, notebook script, module location

@@ -13,15 +13,18 @@
 # SCRIPT liste_modules.sh. For reference, this list is copied in the
 # conda environment root directory, in file 'packages_list'
 
-# install locations use parameters defined below. They are :
-# ----------------------------------------------------------
-#  - for climaf-notebook script: $bin_dir/climaf-notebook_${climaf_label}_${env_label}
-#  - for environment module    : $module_dir/${climaf_label}_${env_label}
+# install locations use parameters defined below. If test_install_dir is not set, they are :
+# -------------------------------------------------------------------------------------------
+#  - for climaf-notebook script: $bin_dir/notebook_${env_label}_climaf${climaf_label}
+#  - for environment module    : $module_dir/${env_label}_climaf${climaf_label}
 #  - for C-ESM-EP              : $cesmep_dir
 #  - for a setenv_C-ESM-EP.sh  : $cesmep_dir/setenv_C-ESM-EP.sh
-#  - for climaf                : $climaf_dir/climaf_${climaf_label}
+#  - for climaf                : $climaf_dir/${climaf_label}
 #  - for conda environment     : $env_dir/${env_label} 
 #  - list of conda packages    : $env_dir/$env_label/packages_list
+
+# If test_install_dir is set, then bin_dir, module_dir, climaf_dir and env_dir are set
+# as sub-directores of test_install_dir
 
 # Any of the three steps (CliMAF install, C-ESM-EP install, conda
 # environment creation) can be skipped using parameters
@@ -31,31 +34,48 @@
 # $writeable is set to no
 writeable=${writeable:-yes}
 
-#set -e
+set -e
 [ ${setx:-no} = yes ] && set -x
 
-[[ $(uname -n) != spirit* ]] && \
+if [[ $(uname -n) != spirit* ]] ; then 
     echo "This script is yet validated only on Spirit; carrying on at your own risks"
+fi
+
+if [ ! -z $test_install_dir ] ; then mkdir -p $test_install_dir ; fi
 
 # 1- About CliMAF
 #####################################
 # Where to get CliMAF from
 climaf_repository=${climaf_repository:-https://github.com/rigoudyg/climaf}
 
-# The name of the CliMAF branch we will use
-climaf_branch=${climaf_branch:-run_cesmep_on_spirit_and_at_TGCC}
+# The name of the CliMAF branch we will use, or the name of a tag
+#climaf_branch=${climaf_branch:-run_cesmep_on_spirit_and_at_TGCC}
+climaf_branch=${climaf_branch:-spirit_0_maintenance}
 
-# climaf_label can be chosen freely
+# climaf_label can be chosen freely; defaults to climaf branch name
 climaf_label=${climaf_label:-${climaf_branch}}
 
 # Where to install CliMAF directory
-climaf_dir=${climaf_dir:-/net/nfs/tools/Users/SU/jservon/climaf_installs}
+if [ -z $test_install_dir ] ; then 
+    climaf_dir=${climaf_dir:-/net/nfs/tools/Users/SU/jservon/climaf_installs}
+else
+    climaf_dir=$test_install_dir/climaf_installs
+fi
+    
 
 # Where should we put the module activating this CliMAF environment
-module_dir=${module_dir:-/net/nfs/tools/Users/SU/modulefiles/jservon/climaf/}
+if [ -z $test_install_dir ] ; then 
+    module_dir=${module_dir:-/net/nfs/tools/Users/SU/modulefiles/jservon/climaf/}
+else
+    module_dir=$test_install_dir/modules
+fi
 
 # Where should we put command 'climaf-notebook'
-bin_dir=${bin_dir:-/net/nfs/tools/Users/SU/jservon/bin}
+if [ -z $test_install_dir ] ; then 
+    bin_dir=${bin_dir:-/net/nfs/tools/Users/SU/jservon/bin}
+else
+    bin_dir=$test_install_dir/bin
+fi
 
 # File associating an IP port to each registered user
 user_ports=/net/nfs/tools/Users/SU/jservon/notebook_user_port.txt
@@ -71,9 +91,13 @@ conda_dir=${conda_dir:-/net/nfs/tools/python-anaconda/Anaconda3-2021.11/}
 #/net/nfs/tools/python-anaconda/miniconda3
 
 # The label for the created conda_environment
-env_label=${env_label:-climafenv_$(date +%Y%m%d)}
+env_label=${env_label:-"env"$(date +%Y%m%d)}
 
-env_dir=${env_dir:-/net/nfs/tools/Users/SU/jservon/spirit-2021.11_envs}
+if [ -z $test_install_dir ] ; then 
+    env_dir=${env_dir:-/net/nfs/tools/Users/SU/jservon/spirit-2021.11_envs}
+else
+    env_dir=$test_install_dir/envs
+fi
 
 # Should we actually create this environment
 env_install=${env_install:-yes}
@@ -83,12 +107,12 @@ env_install=${env_install:-yes}
 # Where to get C-ESM-EP from
 cesmep_repository=${cesmep_repository:-https://github.com/jservonnat/C-ESM-EP}
 
-# Which branch of C-ESM-EP repository should be used for test
+# Which branch (or tag) of C-ESM-EP repository should be used for test
 cesmep_branch=${cesmep_branch:-spirit}
 
 # Provide a directory for installing C-ESM-EP. It will hold a useful
 # setenv_C-ESM-EP.sh, that invokes the relevant module 
-cesmep_dir=${cesmep_dir:-./}
+cesmep_dir=${cesmep_dir:-${test_install_dir:-.}}
 
 # If you set CESMEP_CLIMAF_CACHE to the empty string, your standard
 # climaf_cache will be used. Take care that this may pollute the test
@@ -103,6 +127,8 @@ cesmep_install=${cesmep_install:-yes}
 #---------------------------------------------------------------------------------------------
 
 env_path=$env_dir/$env_label
+module_path=$module_dir/${env_label}_${climaf_label}
+nb_path=$bin_dir/notebook_${env_label}_climaf${climaf_label}
 
 [ ${setx:-no} = yes ] && set +x
 module -s purge
@@ -114,9 +140,6 @@ cesmep_dir=$(mkdir -p $cesmep_dir ; cd $cesmep_dir; pwd)
 climaf_dir=$(mkdir -p $climaf_dir ; cd $climaf_dir; pwd)
 module_dir=$(mkdir -p $module_dir ; cd $module_dir; pwd)
 bin_dir=$(mkdir -p $bin_dir ; cd $bin_dir; pwd)
-
-module_path=$module_dir/${env_label}_${climaf_label}
-nb_path=$bin_dir/climaf-notebook_${env_label}_${climaf_label}
 
 if [ $env_install = yes ] ; then 
     echo "\tCreating conda environment $env_label - this may take quite a while"
@@ -176,6 +199,7 @@ if [ $climaf_install = yes ] ; then
     echo -e "\tCreating the script for launching notebooks at \n\t\t$nb_path "
     sed -e "s^MODULE_PATH^$module_path^g" -e "s^USER_PORTS^$user_ports^g" \
 	$dir/climaf-notebook_template > $nb_path
+    chmod +x $nb_path
     [ $writeable = yes ] && chmod g+w $nb_path
 fi
 
