@@ -10,7 +10,7 @@
 # system, CliMAF, notebooks, C-ESM-EP, ESMValTool
 
 # System
-system_modules="ncurses"  #in order to avoid complaints about version information for libtinfo.6
+system_modules="ncurses" 
 
 # CliMAF
 climaf_modules="natsort ujson xarray netcdf4 h5netcdf cftime yaml pyyaml sphinx"

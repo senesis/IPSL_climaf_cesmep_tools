@@ -175,5 +175,5 @@ sudo chmod +r $archive
 scp $archive $gateway:$archives_dir_on_gateway
 echo "Copying image on Irene"
 echo "Next password is for Irene (maybe with first the password for $gateway)"
-ssh $gateway "cd $archives_dir_on_gateway; scp $archive_name $archives_dir_on_irene"
+ssh -tt $gateway "cd $archives_dir_on_gateway; scp $archive_name $archives_dir_on_irene"
 

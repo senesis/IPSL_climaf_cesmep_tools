@@ -9,6 +9,7 @@ export climaf_branch=V3.0
 export cesmep_branch=spirit_ClimafV3
 
 # We must execute from a location with write permission, let us choose the install dir
+mkdir -p $test_install_dir
 cd $test_install_dir
 
 /net/nfs/tools/Users/SU/jservon/tools/install_all.sh

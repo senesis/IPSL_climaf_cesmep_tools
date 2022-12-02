@@ -37,7 +37,6 @@
 # $writeable is set to no
 writeable=${writeable:-yes}
 
-set -e
 [ ${setx:-no} = yes ] && set -x
 
 if [[ $(uname -n) != spirit* ]] ; then 
@@ -59,22 +58,24 @@ climaf_branch=${climaf_branch:-spirit_0_maintenance}
 climaf_label=${climaf_label:-${climaf_branch}}
 
 # Where to install CliMAF directory
-if [ -z $test_install_dir ] ; then 
+if [ -z $test_install_dir ] || [ $climaf_dir ] ; then 
     climaf_dir=${climaf_dir:-/net/nfs/tools/Users/SU/jservon/climaf_installs}
 else
     climaf_dir=$test_install_dir/climaf_installs
 fi
     
+# Should we test CliMAF
+climaf_test=${climaf_test:-yes}
 
 # Where should we put the module activating this CliMAF environment
-if [ -z $test_install_dir ] ; then 
+if [ -z $test_install_dir ] || [ $module_dir ]; then 
     module_dir=${module_dir:-/net/nfs/tools/Users/SU/modulefiles/jservon/climaf/}
 else
     module_dir=$test_install_dir/modules
 fi
 
 # Where should we put command 'climaf-notebook'
-if [ -z $test_install_dir ] ; then 
+if [ -z $test_install_dir ] || [ $install_dir ]; then 
     bin_dir=${bin_dir:-/net/nfs/tools/Users/SU/jservon/bin}
 else
     bin_dir=$test_install_dir/bin
@@ -96,7 +97,7 @@ conda_dir=${conda_dir:-/net/nfs/tools/python-anaconda/Anaconda3-2021.11/}
 # The label for the created conda_environment
 env_label=${env_label:-$(date +%Y%m%d)}
 
-if [ -z $test_install_dir ] ; then 
+if [ -z $test_install_dir ] || [ $env_dir ]; then 
     env_dir=${env_dir:-/net/nfs/tools/Users/SU/jservon/spirit-2021.11_envs}
 else
     env_dir=$test_install_dir/envs
@@ -115,7 +116,7 @@ cesmep_branch=${cesmep_branch:-spirit}
 
 # Provide a directory for installing C-ESM-EP. It will hold a useful
 # setenv_C-ESM-EP.sh, that invokes the relevant module 
-cesmep_dir=${cesmep_dir:-${test_install_dir:-.}}
+cesmep_dir=${cesmep_dir:-${test_install_dir:-.}/cesmep_test}
 
 # If you set CESMEP_CLIMAF_CACHE to the empty string, your standard
 # climaf_cache will be used. Take care that this may pollute the test
@@ -161,7 +162,7 @@ if [ $env_install = yes ] ; then
     echo "modules=\"$modules\"" > $env_path/packages_list
     echo -e "\tOK ! \n\Packages list is available at $env_path/packages_list"
     [ $writeable = yes ] && chmod -R g+w $env_path
-    chmod g+w $env_dir $log
+    chmod -f g+w $env_dir $log
 fi    
 
 
@@ -175,53 +176,60 @@ if [ $climaf_install = yes ] ; then
     rm -fR $climaf_label
     git clone -b $climaf_branch $climaf_repository ${climaf_label} > $log 2>&1
     [ $? -ne 0 ] && echo "Issue cloning CliMAF - See $log" && exit 1
-    [ $writeable = yes ] && chmod -R g+w climaf_$climaf_label
+    [ $writeable = yes ] && chmod -f -R g+w $climaf_label
 
-    echo -e -n "\t\tInstall done, beginning test ..."
-    test_modules="netcdfbasics period cache classes functions operators standard_operators "
-    test_modules="$test_modules operators_derive operators_scripts cmacro driver dataloc "
-    test_modules="$test_modules find_files html example_data_retrieval example_index_html mcdo" #example_data_plot
-    [ ${setx:-no} = yes ] && set +x
-    module load $conda_module 
-    conda deactivate 
-    conda activate $env_path || (echo "Issue activating $env_path" ; exit 1)
-    [ ${setx:-no} = yes ] && set -x
-    cd climaf_$climaf_label/tests
-    ./launch_tests_with_coverage.sh 1 3 "$test_modules" > $log 2>&1
-    [ $? -ne 0 ] && echo "CliMAF test did not succeed - see $log" && exit 1
-    echo -e "\t OK"
-    [ ${setx:-no} = yes ] && set +x
-    conda deactivate
-    [ ${setx:-no} = yes ] && set -x
+    if [ $climaf_test = yes ] ; then 
+	echo -e -n "\t\tInstall done, beginning test; in case of failure, look at ~/tmp/tests ..."
+	test_modules="netcdfbasics period cache classes functions operators standard_operators "
+	test_modules="$test_modules operators_derive operators_scripts cmacro driver dataloc "
+	test_modules="$test_modules find_files html example_data_retrieval example_index_html mcdo"
+	#example_data_plot
+	[ ${setx:-no} = yes ] && set +x
+	module load $conda_module 
+	conda deactivate 
+	conda activate $env_path || (echo "Issue activating $env_path" ; exit 1)
+	[ ${setx:-no} = yes ] && set -x
+	cd $climaf_label/tests
+	./launch_tests_with_coverage.sh 1 3 "$test_modules" > $log 2>&1
+	[ $? -ne 0 ] && echo "CliMAF test did not succeed - see $log" && exit 1
+	echo -e "\t OK"
+	[ ${setx:-no} = yes ] && set +x
+	conda deactivate
+	[ ${setx:-no} = yes ] && set -x
+    fi
+    chmod -f g+w $climaf_dir $log
     #
+fi
+
+if [ $climaf_install = yes ] || [ $env_install = yes ] ; then 
     echo -e "\tCreating the module file for the new CliMAF environment, at \n\t\t$module_path "
-    sed -e "s^CLIMAF_DIR^${climaf_dir}/climaf_${climaf_label}^g" -e "s^CONDA_ENV^${env_path}^g" \
+    sed -e "s^CLIMAF_DIR^${climaf_dir}/${climaf_label}^g" -e "s^CONDA_ENV^${env_path}^g" \
 	-e "s^CONDA_DIR^$conda_dir^g" -e "s^BIN_DIR^$bin_dir^g" -e "s^CLIMAF_LABEL^$climaf_label^g" \
 	$dir/climaf_module_template > $module_path
-    [ $writeable = yes ] && chmod g+w $module_path
+    [ $writeable = yes ] && chmod -f g+w $module_path
     #
     echo -e "\tCreating the script for launching notebooks at \n\t\t$nb_path "
     sed -e "s^MODULE_PATH^$module_path^g" -e "s^USER_PORTS^$user_ports^g" \
 	$dir/climaf-notebook_template > $nb_path
     chmod +x $nb_path
-    [ $writeable = yes ] && chmod g+w $nb_path
-    chmod g+w $climaf_dir $log
+    [ $writeable = yes ] && chmod -f g+w $nb_path
 fi
 
-if [ $cesmep_install = yes ] ; then 
+if [ $cesmep_install = yes ] ; then
+    cesmep_subdir=C-ESM-EP_tmp
     echo -e "\tInstalling C-ESM-EP code and launching a reference comparison"
     #echo "-------------------------------------------------------------"
     echo -e "\t\tCloning C-ESM-EP branch $cesmep_branch"
     mkdir -p $cesmep_dir
     cd $cesmep_dir
-    rm -fR C-ESM-EP
+    rm -fR $cesmep_subdir
     log=$(pwd)/cesmep_install.log
-    git clone -b $cesmep_branch $cesmep_repository C-ESM-EP #> $log 2>&1
+    git clone -b $cesmep_branch $cesmep_repository $cesmep_subdir #> $log 2>&1
     [ $? -ne 0 ] && echo "Issue cloning C-ESM-EP - See $log" && exit 1
-    [ $writeable = yes ] && chmod -R g+w C-ESM-EP
+    [ $writeable = yes ] && chmod -f -R g+w $cesmep_subdir
     #
     #
-    cd C-ESM-EP
+    cd $cesmep_subdir
     echo -e "\t\tCreating the setenv file you should use, at: "
     echo -e "\t\t\t$(pwd)/setenv_C-ESM-EP.sh "
     sed -i -e "s^emodule=.*^emodule=$module_path^g"  setenv_C-ESM-EP.sh
@@ -253,7 +261,7 @@ if [ $cesmep_install = yes ] ; then
     echo -e "\tAnd dont forget to manage temporary directories : "
     echo -e "\t\t- $(pwd) "
     echo -e "\t\t- $CESMEP_CLIMAF_CACHE"
-    chmod g+w $log $cesmep_dir $cesmep_dir/C-ESM-EP
+    chmod -f g+w $log $cesmep_dir $cesmep_dir/$cesmep_subdir
 else
     exit 0
 fi

@@ -6,7 +6,7 @@ CliMAF install, a module, and a notebook launcher.
 
 3- doc for using this environment in C-ESM-EP, on Spirit and on TGCC's Irene 
 
-S.Sénési 07/2022
+S.Sénési 07/2022 - 12/2022
 
 
 
@@ -17,7 +17,8 @@ Notes :
   - scripts generally receive their parameters as environment variables, but have default values
   - main script is install_all.sh; it also installs a CliMAF version, and provides a version of setenv_C-ESM-EP.sh
 
-test_install.sh : a way to install all components in a test location
+test_install.sh : a way to test installing all components, in a test location;
+		  it calls install_all.sh (see below)
 
 basic_use.sh : shows the simplest way to use main script, using a lot of default settings
 
@@ -28,7 +29,7 @@ Call tree for the main script :
 install_all.sh : general driver. Set there almost all parameters. See in-line comments.
                  It creates a module, and a notebook script
 |
-|--> liste_module.sh : CHOOSE THERE THE LIST OF CONDA PACKAGES
+|--> liste_modules.sh : CHOOSE THERE THE LIST OF CONDA PACKAGES
 |
 |--> swiss_knife.sh : installer script for the conda environment
      |
@@ -38,14 +39,13 @@ install_all.sh : general driver. Set there almost all parameters. See in-line co
 
 2- Script for creating a Docker container archive with the environment and CliMAF code
 -----------------------------------------------------------------------------------
-build_container.sh : script to run on a machine having Docker installed
+build_container.sh : script to run on a machine having Docker installed. See doc inline.
 
 climaf_spirit_0.tar : result of the script : the container for branch
 		      'spirit' of CliMAF, and set '0' of conda packages
 		      This (large) file is not included in the repository
 
 
-3- Doc for using this environment on Spirit and on TGCC's Irene
-----------------------------------------------------------------
+3- Doc for using this environment on Spirit 
+--------------------------------------------
 README.spirit
-README.irene

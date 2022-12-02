@@ -19,4 +19,3 @@ The only specifics for running C-ESM-EP on spirit[1-2].ipsl.fr are :
   - in params_<component>.py :
      * set a value for variable 'queue', if necessay (e.g. 'zen4', 'zen16' ...)
 
-This assumes that you have a basic setup of your spirit account

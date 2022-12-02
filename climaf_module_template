@@ -22,7 +22,7 @@ prepend-path    LD_LIBRARY_PATH CONDA_ENV/lib
 prepend-path    PYTHONPATH      CLIMAF_DIR
 
 # -- Set CliMAF cache
-if [ string match "spirit*" $env(HOSTNAME) ]  { set climaf_cache /data/$env(USER)/climafcache } else { set climaf_cache /homedata/$env(USER)/climafcache }
+if [ string match "spirit*" [info hostname] ]  { set climaf_cache /data/$env(USER)/climafcache } else { set climaf_cache /homedata/$env(USER)/climafcache }
 setenv CLIMAF_CACHE $climaf_cache
 setenv TMPDIR $climaf_cache
 
@@ -30,5 +30,5 @@ setenv TMPDIR $climaf_cache
 setenv HDF5_DISABLE_VERSION_CHECK 1
 setenv UVCDAT_ANONYMOUS_LOG False
 
-puts stderr "CliMAF version is CLIMAF_LABEL"
-puts stderr "CliMAF cache is $climaf_cache"
+#puts stderr "CliMAF version is CLIMAF_LABEL"
+#puts stderr "CliMAF cache is $climaf_cache"
