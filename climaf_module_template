@@ -22,7 +22,7 @@ prepend-path    LD_LIBRARY_PATH CONDA_ENV/lib
 prepend-path    PYTHONPATH      CLIMAF_DIR
 
 # -- Set CliMAF cache
-if [ string match "spirit*" [info hostname] ]  { set climaf_cache /data/$env(USER)/climafcache } else { set climaf_cache /homedata/$env(USER)/climafcache }
+if [ string match "spiritx*" [info hostname] ]  { set climaf_cache /scratchx/$env(USER)/climafcache } else { set climaf_cache /scratchu/$env(USER)/climafcache }
 setenv CLIMAF_CACHE $climaf_cache
 setenv TMPDIR $climaf_cache
 

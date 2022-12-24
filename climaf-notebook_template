@@ -17,7 +17,7 @@ then
 fi
 SHORT_HOST="$(hostname -f)"
 case $SHORT_HOST in
-    spirit1.*|spirit2.*|spirit.*)
+    spirit1.*|spirit2.*|spirit.*|spiritx.*)
 	echo -e  "\033[1;31mPlease do not run this on login node $SHORT_HOST but use e.g.:\033[m"
 	echo -e  "\033[1;34msrun --pty --mem-per-cpu=9G  --time=60 $0 \033[m"
 	exit 1 ;;

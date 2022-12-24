@@ -3,6 +3,9 @@
 # On script execution, install location will be displayed for all components
 # Once everything is OK, just comment out the line setting test_install_dir
 
+# Take care that the install location must allow for creating numerous
+# inodes, which is usually not the case for /scratchu
+
 export test_install_dir=/scratchu/ssenesi/test_install
 
 export climaf_branch=V3.0

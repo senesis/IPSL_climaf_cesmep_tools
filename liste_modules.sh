@@ -10,7 +10,7 @@
 # system, CliMAF, notebooks, C-ESM-EP, ESMValTool
 
 # System
-system_modules="ncurses" 
+system_modules="bash ncurses" 
 
 # CliMAF
 climaf_modules="natsort ujson xarray netcdf4 h5netcdf cftime yaml pyyaml sphinx"
