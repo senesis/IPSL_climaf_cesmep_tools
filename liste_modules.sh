@@ -21,7 +21,7 @@ climaf_exec="cdo<2.0.4 ncl imagemagick ncview nco!=5.0.4 exiv2 perl ipython pipe
 nb_modules="jupyter jupytext papermill texlive-core nb_conda"
 
 # C-ESM-EP
-cesmep_modules="cdms2 cdutil "
+cesmep_modules="numpy<1.24.0 cdms2 cdutil "
 r_modules="r-irkernel r-evd r-ncdf4 r-foreach r-doParallel r-goftest Cython"
 
 #ESMValTool

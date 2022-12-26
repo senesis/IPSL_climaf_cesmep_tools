@@ -160,7 +160,7 @@ if [ $env_install = yes ] ; then
     
     # Copy packages list in the environment root dir
     echo "modules=\"$modules\"" > $env_path/packages_list
-    echo -e "\tOK ! \n\Packages list is available at $env_path/packages_list"
+    echo -e "\tOK ! \n\tPackages list is available at $env_path/packages_list"
     [ $writeable = yes ] && chmod -R g+w $env_path
     chmod -f g+w $env_dir $log
 fi    

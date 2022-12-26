@@ -19,6 +19,7 @@ module_names={
     #
     "gdal" : "skip" ,
     #
+    "bash": ("type", "bash --help"),
     "imagemagick": ("type", "convert -h"),
     "ipython": ("type", "ipython -h"),
     "exiv2" : ("type","exiv2 -h "),
