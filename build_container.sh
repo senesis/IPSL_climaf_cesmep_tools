@@ -46,7 +46,8 @@ climaf_repository=http://github.com/rigoudyg/climaf.git
 
 # Name of the CliMAF branch to include (note : you may supersede
 # CliMAF code later, when using the container on Irene)
-climaf_branch=run_cesmep_on_spirit_and_at_TGCC
+#climaf_branch=run_cesmep_on_spirit_and_at_TGCC
+climaf_branch=V3.c
 
 # user@machine for the machine hosting the reference conda environment
 remote_conda_env_machine=ssenesi@spirit1.ipsl.fr
@@ -55,22 +56,19 @@ remote_conda_env_machine=ssenesi@spirit1.ipsl.fr
 ubuntu_version="20.04"
 
 # Name or full path of the reference conda environment
-remote_conda_env=/net/nfs/tools/Users/SU/jservon/spirit-2021.11_envs/climaf_spirit_0
-
-# Version of the Dockerfile created by this very script
-docker_file=${docker_file:-"2"}
+remote_conda_env=/net/nfs/tools/Users/SU/jservon/spirit-2021.11_envs/20221224
 
 # May choose a name for the created conda environment, or use a sensible default
-env_name=${env_name:-$(basename $remote_conda_env)}_${docker_file}
+env_name=${env_name:-$(basename $remote_conda_env)}_${climaf_branch}
 
 # user@machine for the machine used as a gateway to Irene (for scp)
 gateway=ssenesi@ciclad.ipsl.upmc.fr
 
-# Choose a directory on the gateway for the docker container archive (must exists before run)
-archives_dir_on_gateway="/scratchu/ssenesi"
+# Choose a directory on the gateway for the docker container archive (must exist before run)
+archives_dir_on_gateway=/scratchu/ssenesi
 
 # Which is the target directory on Irene (with prefix user@irene-fr.ccc.cea.fr:)
-archives_dir_on_irene=senesis@irene-fr.ccc.cea.fr:/ccc/cont003/home/ipsl/senesis/work/docker_archives
+archives_dir_on_irene=senesis@irene-fr.ccc.cea.fr:/ccc/cont003/home/igcmg/igcmg/Tools/climaf/
 
 # Choose a (local) working directory
 WD=./

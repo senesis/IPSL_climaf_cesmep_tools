@@ -5,6 +5,7 @@
 # repository and conda-forge. This includes some automated testing,
 # and the creation of auxilliary files : a module file, a notebook
 # launcher, and a version of setenv_C-ESM-EP.sh
+# There is a toggle for de-activating each of the three major steps.
 
 # S.Sénési 07/2022
 
@@ -27,7 +28,7 @@
 # as sub-directores of test_install_dir
 
 # env_label, if not exported, is set as the current date
-# climaf_label, if not exported, is set as the climaf_branch (the label of the installed branch/tag)
+# climaf_label, if not exported, is set as $climaf_branch (the label of the branch/tag to install)
 
 # Any of the three steps (CliMAF install, C-ESM-EP install, conda
 # environment creation) can be skipped using parameters
@@ -161,7 +162,7 @@ if [ $env_install = yes ] ; then
     # Copy packages list in the environment root dir
     echo "modules=\"$modules\"" > $env_path/packages_list
     echo -e "\tOK ! \n\tPackages list is available at $env_path/packages_list"
-    [ $writeable = yes ] && chmod -R g+w $env_path
+    [ $writeable = yes ] && chmod -R g+w $env_path 2>/dev/null
     chmod -f g+w $env_dir $log
 fi    
 
@@ -176,7 +177,7 @@ if [ $climaf_install = yes ] ; then
     rm -fR $climaf_label
     git clone -b $climaf_branch $climaf_repository ${climaf_label} > $log 2>&1
     [ $? -ne 0 ] && echo "Issue cloning CliMAF - See $log" && exit 1
-    [ $writeable = yes ] && chmod -f -R g+w $climaf_label
+    [ $writeable = yes ] && chmod -f -R g+w $climaf_label 2>/dev/null
 
     if [ $climaf_test = yes ] ; then 
 	echo -e -n "\t\tInstall done, beginning test; in case of failure, look at ~/tmp/tests ..."
@@ -206,13 +207,13 @@ if [ $climaf_install = yes ] || [ $env_install = yes ] ; then
     sed -e "s^CLIMAF_DIR^${climaf_dir}/${climaf_label}^g" -e "s^CONDA_ENV^${env_path}^g" \
 	-e "s^CONDA_DIR^$conda_dir^g" -e "s^BIN_DIR^$bin_dir^g" -e "s^CLIMAF_LABEL^$climaf_label^g" \
 	$dir/climaf_module_template > $module_path
-    [ $writeable = yes ] && chmod -f g+w $module_path
+    [ $writeable = yes ] && chmod -f g+w $module_path 2>/dev/null
     #
     echo -e "\tCreating the script for launching notebooks at \n\t\t$nb_path "
     sed -e "s^MODULE_PATH^$module_path^g" -e "s^USER_PORTS^$user_ports^g" \
 	$dir/climaf-notebook_template > $nb_path
     chmod +x $nb_path
-    [ $writeable = yes ] && chmod -f g+w $nb_path
+    [ $writeable = yes ] && chmod -f g+w $nb_path 2>/dev/null
 fi
 
 if [ $cesmep_install = yes ] ; then
@@ -226,7 +227,7 @@ if [ $cesmep_install = yes ] ; then
     log=$(pwd)/cesmep_install.log
     git clone -b $cesmep_branch $cesmep_repository $cesmep_subdir #> $log 2>&1
     [ $? -ne 0 ] && echo "Issue cloning C-ESM-EP - See $log" && exit 1
-    [ $writeable = yes ] && chmod -f -R g+w $cesmep_subdir
+    [ $writeable = yes ] && chmod -f -R g+w $cesmep_subdir 2>/dev/null
     #
     #
     cd $cesmep_subdir
