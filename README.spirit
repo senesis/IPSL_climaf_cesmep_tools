@@ -2,7 +2,10 @@ User guide for CliMAF on Spirit
 --------------------------------
 
 Issue a 'module load' command with argument e.g. /net/nfs/tools/Users/SU/modulefiles/jservon/climaf/spirit_0
+(the exact value is displayed upon execution of install_all.sh)
 And refer to CLiMAF doc
+
+For executing a notebook with full CliMAF environmment, use e.g. script /net/nfs/tools/Users/SU/jservon/bin/climaf-notebook
 
 
 
@@ -17,5 +20,5 @@ The only specifics for running C-ESM-EP on spirit[1-2].ipsl.fr are :
        /net/nfs/tools/Users/SU/modulefiles/jservon/climaf/spirit_0
        
   - in params_<component>.py :
-     * set a value for variable 'queue', if necessay (e.g. 'zen4', 'zen16' ...)
+     * set a value for variable 'queue', if necessary (e.g. 'zen4', 'zen16' ...)
 

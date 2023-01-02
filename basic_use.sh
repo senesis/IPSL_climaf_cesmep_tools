@@ -4,14 +4,14 @@
 # and especially the defaut installation directories.
 # The other settings are set by exporting environment variables
 
-# It creates conda environment 'climaf_spirit_0', module 'climaf/spirit_0' and
-# install CliMAF in subdir 'climaf_spirit_0'
+# It creates a conda environment , a module and installs and tests CliMAF
+# Their locations will be displayed (see also install_all.sh)
 
-# S.Sénési - july 2022
+# S.Sénési - july 2022- jan 2023
 
 script=/net/nfs/tools/Users/SU/jservon/tools/install_all.sh
 
-export climaf_branch=run_cesmep_on_spirit_and_at_TGCC
+export climaf_branch=spirit_0_maintenance
 export cesmep_branch=spirit
 
 $script

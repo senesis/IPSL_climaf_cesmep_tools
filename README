@@ -2,11 +2,11 @@
 1- Tools for creating for CliMAF a tested conda environment, a tested
 CliMAF install, a module, and a notebook launcher.
 
-2- a tool for creating a Docker container archive of this environment, plus CliMAF code; and the archive 
+2- a tool for creating a Docker container archive of this environment, plus CliMAF code 
 
-3- doc for using this environment in C-ESM-EP, on Spirit and on TGCC's Irene 
+3- doc for using this environment with C-ESM-EP, on Spirit and on TGCC's Irene 
 
-S.Sénési 07/2022 - 12/2022
+S.Sénési 07/2022 - 01/2023
 
 
 
@@ -15,12 +15,13 @@ S.Sénési 07/2022 - 12/2022
 Notes :
   - all scripts have an inline doc
   - scripts generally receive their parameters as environment variables, but have default values
-  - main script is install_all.sh; it also installs a CliMAF version, and provides a version of setenv_C-ESM-EP.sh
+  - main script is install_all.sh; it also installs and tests a CliMAF version, and provides a version of setenv_C-ESM-EP.sh
 
 test_install.sh : a way to test installing all components, in a test location;
 		  it calls install_all.sh (see below)
 
-basic_use.sh : shows the simplest way to use main script, using a lot of default settings
+basic_use.sh : shows the simplest way to use main script, using a lot of default settings,
+	       for installing at nominal ('official') locations
 
 advanced_use.sh : an example that changes all settings, and is useful for development and tuning
 
@@ -40,10 +41,6 @@ install_all.sh : general driver. Set there almost all parameters. See in-line co
 2- Script for creating a Docker container archive with the environment and CliMAF code
 -----------------------------------------------------------------------------------
 build_container.sh : script to run on a machine having Docker installed. See doc inline.
-
-climaf_spirit_0.tar : result of the script : the container for branch
-		      'spirit' of CliMAF, and set '0' of conda packages
-		      This (large) file is not included in the repository
 
 
 3- Doc for using this environment on Spirit 
