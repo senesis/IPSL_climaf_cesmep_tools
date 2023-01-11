@@ -23,6 +23,7 @@ prepend-path    PYTHONPATH      CLIMAF_DIR
 
 # -- Set CliMAF cache
 if [ string match "spiritx*" [info hostname] ]  { set climaf_cache /scratchx/$env(USER)/climafcache } else { set climaf_cache /scratchu/$env(USER)/climafcache }
+setenv CLIMAF CLIMAF_DIR
 setenv CLIMAF_CACHE $climaf_cache
 setenv TMPDIR $climaf_cache
 
