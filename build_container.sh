@@ -1,9 +1,8 @@
 # Create a docker container based on a reference conda environment on some machine (e.g. spirit)
 # Add Climaf sources to the container
-# Create an archive for that container and push it to Irene
+# Create a docker container archive for that container and push it to Irene
 
-# Author : S.Sénési - june 2022
-# Changes : 14 sept 2022 : activate conda environment in docker env by setting environment variables
+# Author : S.Sénési - june 2022 / january 2023
 
 # Pre-requisites :
 #------------------
@@ -44,7 +43,7 @@ set -e
 # CliMAF code later, when using the container on Irene)
 climaf_repository=http://github.com/rigoudyg/climaf.git
 
-# Name of the CliMAF branch to include (note : you may supersede
+# Name of the CliMAF branch or tag to include (note : you may supersede
 # CliMAF code later, when using the container on Irene)
 #climaf_branch=run_cesmep_on_spirit_and_at_TGCC
 climaf_branch=V3.c
@@ -146,6 +145,7 @@ cat > Dockerfile <<-EOF
 
 	# Install CliMAF 
 	COPY climaf /src/climaf	
+	ENV CLIMAF=/src/climaf
 	ENV PATH=/src/climaf/bin:\$PATH
 	ENV PYTHONPATH=/src/climaf:\$PYTHONPATH
 
