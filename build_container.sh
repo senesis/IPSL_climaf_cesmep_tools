@@ -46,10 +46,11 @@ climaf_repository=http://github.com/rigoudyg/climaf.git
 # Name of the CliMAF branch or tag to include (note : you may supersede
 # CliMAF code later, when using the container on Irene)
 #climaf_branch=run_cesmep_on_spirit_and_at_TGCC
-climaf_branch=V3.c
+climaf_branch=V3.d
 
 # user@machine for the machine hosting the reference conda environment
 remote_conda_env_machine=ssenesi@spirit1.ipsl.fr
+#remote_conda_env_machine=s2
 
 # Ubuntu release for that machine (for exact reproduction of environment)
 ubuntu_version="20.04"
@@ -62,6 +63,7 @@ env_name=${env_name:-$(basename $remote_conda_env)}_${climaf_branch}
 
 # user@machine for the machine used as a gateway to Irene (for scp)
 gateway=ssenesi@ciclad.ipsl.upmc.fr
+#gateway=c
 
 # Choose a directory on the gateway for the docker container archive (must exist before run)
 archives_dir_on_gateway=/scratchu/ssenesi
@@ -78,11 +80,13 @@ WD=./
 archives_dir=../docker_archives
 
 # May chose a name to give to the docker container, or use a sensible default
-#image_name=cesmep:prod
 image_name=${env_name}:prod
+# Convert to lower case (for some docker versions) 
+image_name=${image_name,,}
 
 # May choose a name for the container archive , or use a sensible default
 archive_name=${env_name}.tar
+archive=$archives_dir/$archive_name
 
 # All variables to set stand above this line
 #-----------------------------------------------------------------------------------------------------
@@ -102,8 +106,8 @@ sed -e '$ d' -e '1 d' tmp_environment_full.yml >> env.yml
 rm tmp_environment_full.yml
 
 
-echo "Getting CliMAF code for branch $climaf_branch (except if areay available in $WD)"
-echo "--------------------------------------------------------------------------------------"
+echo "Getting CliMAF code for branch $climaf_branch (except if there is already a 'climaf' dir in $WD)"
+echo "------------------------------------------------------------------------------------------------"
 [ ! -d climaf ] && time git clone -b $climaf_branch $climaf_repository
 
 
@@ -162,14 +166,13 @@ time sudo docker build -t $image_name . -f Dockerfile
 echo "Creating container archive $archive_name (in directory $archives_dir)"
 echo "-----------------------------------------------------------------------------"
 mkdir -p $archives_dir
-archive=$archives_dir/$archive_name
 rm -f $archive
 time sudo docker save $image_name -o $archive
+sudo chmod +r $archive
 
 
 echo "Pushing image archive to Irene, using gateway $gateway"
 echo "-------------------------------------------------------------"
-sudo chmod +r $archive
 scp $archive $gateway:$archives_dir_on_gateway
 echo "Copying image on Irene"
 echo "Next password is for Irene (maybe with first the password for $gateway)"
