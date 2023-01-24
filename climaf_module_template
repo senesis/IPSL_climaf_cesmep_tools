@@ -33,3 +33,8 @@ setenv UVCDAT_ANONYMOUS_LOG False
 
 #puts stderr "CliMAF version is CLIMAF_LABEL"
 #puts stderr "CliMAF cache is $climaf_cache"
+
+# Define an alias for the notebook script
+set-function nbc {
+  srun $* --pty NB_SCRIPT
+  }

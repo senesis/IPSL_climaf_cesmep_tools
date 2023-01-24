@@ -28,6 +28,7 @@ case $SHORT_HOST in
 esac
 
 echo
+echo -e "\033[1;31m Launching the Jupyter notebook environment on the ESPRI cluster"
 echo -e "\033[1;31m FIRST STEP: Open your port \033[m"
 echo "     - open a terminal on your computer (!! NOT on Spirit, Ciclad, Loholt, Cerbere, Idefix... but on your local machine)"
 echo "     - and connect to the Mesocenter with this blue command: "

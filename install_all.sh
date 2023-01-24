@@ -150,9 +150,11 @@ if [ $env_install = yes ] ; then
     echo -e "\tCreating conda environment $env_label - this may take quite a while"
     #echo "-------------------------------------------------------------"
     log=env_install.log
+    
     # Init variables for swiss_knife.sh
     export ANA=$conda_module  where=$env_dir python="python=3.9" channels="-c conda-forge -c r"
     export env=$env_label create=yes install=yes  mamba=yes 
+
     # Source list of packages/modules if not set through an env. variable
     [ -z $modules ] && . $dir/liste_modules.sh
     $dir/swiss_knife.sh "$modules" > $log 2>&1
@@ -206,7 +208,7 @@ if [ $climaf_install = yes ] || [ $env_install = yes ] ; then
     echo -e "\tCreating the module file for the new CliMAF environment, at \n\t\t$module_path "
     sed -e "s^CLIMAF_DIR^${climaf_dir}/${climaf_label}^g" -e "s^CONDA_ENV^${env_path}^g" \
 	-e "s^CONDA_DIR^$conda_dir^g" -e "s^BIN_DIR^$bin_dir^g" -e "s^CLIMAF_LABEL^$climaf_label^g" \
-	$dir/climaf_module_template > $module_path
+	-e "s^NB_SCRIPT^$nb_path^g" $dir/climaf_module_template > $module_path
     [ $writeable = yes ] && chmod -f g+w $module_path 2>/dev/null
     #
     echo -e "\tCreating the script for launching notebooks at \n\t\t$nb_path "
