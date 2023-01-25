@@ -36,5 +36,5 @@ setenv UVCDAT_ANONYMOUS_LOG False
 
 # Define an alias for the notebook script
 set-function nbc {
-  srun $* --pty NB_SCRIPT
+  srun --mem-per-cpu=9G  --time=60 $* --pty NB_SCRIPT
   }
