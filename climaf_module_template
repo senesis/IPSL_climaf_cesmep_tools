@@ -35,6 +35,6 @@ setenv UVCDAT_ANONYMOUS_LOG False
 #puts stderr "CliMAF cache is $climaf_cache"
 
 # Define an alias for the notebook script
-set-function nbc {
+set-function climaf-notebook {
   srun --mem-per-cpu=9G  --time=60 $* --pty NB_SCRIPT
   }
