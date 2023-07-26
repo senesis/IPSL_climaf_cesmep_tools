@@ -83,6 +83,7 @@ else
 fi
 
 # File associating an IP port to each registered user
+# (used in notebook scripts)
 user_ports=/net/nfs/tools/Users/SU/jservon/notebook_user_port.txt
 
 # Should we actually install and test CliMAF
@@ -124,9 +125,11 @@ cesmep_dir=${cesmep_dir:-${test_install_dir:-.}/cesmep_test}
 # with results from another CLiMAF code.
 CESMEP_CLIMAF_CACHE=${CESMEP_CLIMAF_CACHE:-/scratchu/$USER/cesmep_test_cache}
 
-# Should we actually install and test CESMEP
+# Should we actually install and test CESMEP. If yes, provide details
 cesmep_install=${cesmep_install:-yes}
-
+reference_comparison=ref_comparison
+reference_results=TBD
+email=${email:-jerome.servonnat@lsce.ipsl.fr}
 #---------------------------------------------------------------------------------------------
 # END of script parameters
 #---------------------------------------------------------------------------------------------
@@ -238,33 +241,36 @@ if [ $cesmep_install = yes ] ; then
     sed -i -e "s^emodule=.*^emodule=$module_path^g"  setenv_C-ESM-EP.sh
     export CESMEP_CLIMAF_CACHE
     #
-    echo -e -n "\t\tLaunching run_C-ESM-EP.py with arg 'url'..."
-    # Want to make sure that created module alone is enough for a successful run
     [ ${setx:-no} = yes ] && set +x    
     module -s purge 
     PYTHONPATH="" 
     module -s load $module_path
     [ ${setx:-no} = yes ] && set -x
+    #
+    echo -e -n "\t\tLaunching run_C-ESM-EP.py with arg 'url'..."
+    # Want to make sure that created module alone is enough for a successful run
     python run_C-ESM-EP.py standard_comparison url > $log
     [ $? -ne 0 ] && echo -e "\nIssue - see $log" && exit 1
     echo -e "OK"
     #
-    echo -e "\t\tLaunching test_comparison, a clone of reference_comparison \n"
-    #
-    cd tests
-    ./launch_test_comparison.sh test_comparison reference_comparison
-    [ $? -ne 0 ] && echo "Issue - see above" && exit 1
+    if [ -f tests/check_ref_comparison.sh ] ; then 
+	echo -e "\t\tChecking results for reference_comparison \n"
+	tests/check_ref_comparison.sh $reference_comparison $reference_results $email
+    fi
     
-    echo
-    echo "---------------------------------------------------------------------------------"
-    echo -e "\tPlease check completion of the jobs listed above, and have a look at the results"
-    echo -e "\tAfter job completion, you may also launch this command :"
-    echo -e "\t\t$(pwd)/compare_results.sh"
-    echo
-    echo -e "\tAnd dont forget to manage temporary directories : "
-    echo -e "\t\t- $(pwd) "
-    echo -e "\t\t- $CESMEP_CLIMAF_CACHE"
-    chmod -f g+w $log $cesmep_dir $cesmep_dir/$cesmep_subdir
+    # ./launch_test_comparison.sh test_comparison reference_comparison
+    # [ $? -ne 0 ] && echo "Issue - see above" && exit 1
+    
+    # echo
+    # echo "---------------------------------------------------------------------------------"
+    # echo -e "\tPlease check completion of the jobs listed above, and have a look at the results"
+    # echo -e "\tAfter job completion, you may also launch this command :"
+    # echo -e "\t\t$(pwd)/compare_results.sh"
+    # echo
+    # echo -e "\tAnd dont forget to manage temporary directories : "
+    # echo -e "\t\t- $(pwd) "
+    # echo -e "\t\t- $CESMEP_CLIMAF_CACHE"
+    # chmod -f g+w $log $cesmep_dir $cesmep_dir/$cesmep_subdir
 else
     exit 0
 fi

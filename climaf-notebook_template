@@ -39,7 +39,7 @@ echo
 
 
 echo -e "\033[1;31m SECOND STEP: \033[m"
-echo "    - among the url below (returned by Jupyter), choose the one with '127.0.0.1'"
+echo "    - among the urls below (returned by Jupyter), choose the one with '127.0.0.1'"
 echo "    - and paste in a browser on your computer (Chrome, Firefox...)"
 echo
 echo -e "\033[1;31m Have fun! \033[m"

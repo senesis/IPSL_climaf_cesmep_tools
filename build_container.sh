@@ -26,14 +26,16 @@
 
 # Note : upon run, the user will have to provide passwords interactively :
 #  1- first for sudo on local machine
-#  2- maybe next (and 3 times) for ssh/scp access to the conda env referece machine (except if using SSH keys without password)
-#  3- maybe next (and 2 times) for ssh/scp access to the gateway machine (except if using SSH keys without password)
+#  2- maybe next (and 3 times) for ssh/scp access to the conda env referece machine
+#      (except if using SSH keys without password)
+#  3- maybe next (and 2 times) for ssh/scp access to the gateway machine
+#       (except if using SSH keys without password)
 #  4- last for scp from gateway to Irene
 #
 # The last scp command may be deferred to a further stage in order to avoid waiting attending the execution
 
 
-set -x
+#set -x
 set -e
 
 # All variables to set stand below this line
@@ -45,32 +47,29 @@ climaf_repository=http://github.com/rigoudyg/climaf.git
 
 # Name of the CliMAF branch or tag to include (note : you may supersede
 # CliMAF code later, when using the container on Irene)
-#climaf_branch=run_cesmep_on_spirit_and_at_TGCC
-climaf_branch=V3.d
+climaf_branch=V3.0_IPSL1
 
 # user@machine for the machine hosting the reference conda environment
 remote_conda_env_machine=ssenesi@spirit1.ipsl.fr
-#remote_conda_env_machine=s2
 
 # Ubuntu release for that machine (for exact reproduction of environment)
 ubuntu_version="20.04"
 
 # Name or full path of the reference conda environment
-remote_conda_env=/net/nfs/tools/Users/SU/jservon/spirit-2021.11_envs/20221224
+remote_conda_env=/net/nfs/tools/Users/SU/jservon/spirit-2021.11_envs/20230611
 
 # May choose a name for the created conda environment, or use a sensible default
 env_name=${env_name:-$(basename $remote_conda_env)}_${climaf_branch}
 
 # user@machine for the machine used as a gateway to Irene (for scp)
 gateway=ssenesi@ciclad.ipsl.upmc.fr
-#gateway=c
 
 # Choose a directory on the gateway for the docker container archive (must exist before run)
 archives_dir_on_gateway=/scratchu/ssenesi
 
-# Which is the target directory on Irene (with prefix user@irene-fr.ccc.cea.fr:)
-archives_dir_on_irene=senesis@irene-fr.ccc.cea.fr:/ccc/cont003/home/igcmg/igcmg/Tools/climaf/
-
+# Which are the targets on supercomputers :
+# a string of white space separated  value such as user@irene-fr.ccc.cea.fr:/some/dir/
+archives_dir_on_hpc="upe47jz@jean-zay.idris.fr:/gpfswork/rech/psl/commun/Tools/cesmep/ senesis@irene-fr.ccc.cea.fr:/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/"
 # Choose a (local) working directory
 WD=./
 
@@ -106,11 +105,16 @@ sed -e '$ d' -e '1 d' tmp_environment_full.yml >> env.yml
 rm tmp_environment_full.yml
 
 
-echo "Getting CliMAF code for branch $climaf_branch (except if there is already a 'climaf' dir in $WD)"
+if [ ! -d climaf ] ; then
+    echo "Getting CliMAF code for branch $climaf_branch"
+    time git clone -b $climaf_branch $climaf_repository
+else
+    echo "Using local CliMAF directory"
+fi
 echo "------------------------------------------------------------------------------------------------"
-[ ! -d climaf ] && time git clone -b $climaf_branch $climaf_repository
 
 
+echo
 echo "Building Docker container $image_name"
 echo "--------------------------------------------"
 cat > Dockerfile <<-EOF
@@ -118,10 +122,13 @@ cat > Dockerfile <<-EOF
 	
 	FROM ubuntu:$ubuntu_version
 	
-	# Install wget (for getting miniconda) and pdftk (for CliMAF)
+	# Install wget (for getting miniconda) and texlive + pdftk (for CliMAF)
+	ENV DEBIAN_FRONTEND=noninteractive 
 	RUN apt-get -y update --fix-missing && \\
+	    apt-get -y upgrade --fix-missing && \\
 	    apt-get -y install --fix-missing apt-utils 
 	RUN apt-get install -y --fix-missing wget && \\
+	    apt-get install -y --fix-missing texlive texlive-xetex && \\
 	    apt-get install -y --fix-missing pdftk && \\
 	    apt-get clean && \\
 	    rm -rf /var/lib/apt/lists/*
@@ -155,14 +162,15 @@ cat > Dockerfile <<-EOF
 
 	# Prepare for run time	
 	WORKDIR /home
-	ENV PATH=\$PATH:/ccc/cont003/home/igcmg/igcmg/Tools/irene  
 	CMD ["bash"]
 	EOF
 
+echo
 echo "Next requested password (if any) is the local sudo password"
 time sudo docker build -t $image_name . -f Dockerfile
 
 
+echo
 echo "Creating container archive $archive_name (in directory $archives_dir)"
 echo "-----------------------------------------------------------------------------"
 mkdir -p $archives_dir
@@ -171,10 +179,12 @@ time sudo docker save $image_name -o $archive
 sudo chmod +r $archive
 
 
-echo "Pushing image archive to Irene, using gateway $gateway"
+echo
+echo "Pushing image archive to HPC center(s), using gateway $gateway"
 echo "-------------------------------------------------------------"
-scp $archive $gateway:$archives_dir_on_gateway
-echo "Copying image on Irene"
-echo "Next password is for Irene (maybe with first the password for $gateway)"
-ssh -tt $gateway "cd $archives_dir_on_gateway; scp $archive_name $archives_dir_on_irene"
-
+scp -p $archive $gateway:$archives_dir_on_gateway
+for hpc in $archives_dir_on_hpc ; do 
+    echo "Copying image on $hpc"
+    echo "Next password is for ${hpc%:*} (maybe with first the password for $gateway)"
+    ssh -tt $gateway "cd $archives_dir_on_gateway; scp -p $archive_name $hpc"
+done

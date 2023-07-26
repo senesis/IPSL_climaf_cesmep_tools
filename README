@@ -4,7 +4,7 @@ CliMAF install, a module, and a notebook launcher.
 
 2- a tool for creating a Docker container archive of this environment, plus CliMAF code 
 
-3- doc for using this environment with C-ESM-EP, on Spirit and on TGCC's Irene 
+3- doc for using this environment with C-ESM-EP on Spirit 
 
 S.Sénési 07/2022 - 01/2023
 

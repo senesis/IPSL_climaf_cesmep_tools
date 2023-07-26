@@ -11,8 +11,8 @@
 
 script=/net/nfs/tools/Users/SU/jservon/tools/install_all.sh
 
-export climaf_branch=spirit_0_maintenance
-export cesmep_branch=spirit
+export climaf_branch=V3.0_IPSL1
+export cesmep_branch=idris2
 
 $script
 	  

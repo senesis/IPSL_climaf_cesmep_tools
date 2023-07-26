@@ -104,14 +104,22 @@ for module in $modules; do
     conda deactivate
     conda activate $CENV
     echo $module
+    log=logs/inst_${env}_${module}.log
+    if [ $install != no ] ; then 
+	if [[ $module == pip:* ]] ; then
+	    echo Installing with pip ...
+	    pip install ${module/pip:/} > $log
+	else
+	    echo Installing..
+	    $inst $module > $log
+	fi
+    fi
+    # Useful ?
     if [ $import != last ] ; then 
 	sublist=$sublist" "$module
     else
 	sublist=$module
     fi
-    log=logs/inst_${env}_${module}.log
-    [ $install != no ] && echo Installing.. && $inst $module > $log
-    # Useful ?
     echo "Importing or executing modules ["$sublist" ]" 
     if ! python $test_import "$sublist" ; then
 	echo "Issue when importing $module, maybe check conda install log $log"

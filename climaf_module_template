@@ -27,6 +27,9 @@ setenv CLIMAF CLIMAF_DIR
 setenv CLIMAF_CACHE $climaf_cache
 setenv TMPDIR $climaf_cache
 
+# For NCL colormaps
+setenv NCARG_ROOT CONDA_DIR
+
 # Next for CDMS2
 setenv HDF5_DISABLE_VERSION_CHECK 1
 setenv UVCDAT_ANONYMOUS_LOG False

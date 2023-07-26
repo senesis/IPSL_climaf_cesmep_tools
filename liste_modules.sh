@@ -10,19 +10,21 @@
 # system, CliMAF, notebooks, C-ESM-EP, ESMValTool
 
 # System
-system_modules="bash ncurses" #Just because spirit system versions miss some version information
+system_modules="bash ncurses vim emacs" 
 
 # CliMAF
-climaf_modules="natsort ujson xarray netcdf4 h5netcdf cftime yaml pyyaml sphinx"
-climaf_exec="cdo<2.0.4 ncl imagemagick ncview nco!=5.0.4 exiv2 perl ipython pipenv "
+climaf_modules="natsort ujson xarray netcdf4 h5netcdf cftime yaml pyyaml sphinx pip:pdflatex"
+climaf_exec="cdo<2.0.4 ncl imagemagick fonts-conda-forge ncview nco!=5.0.4 exiv2 perl ipython pipenv"
 # Note: CliMAF also needs pdftk, but there is no conda package for that, only a Ubuntu package
 # Note : netcdf4 and h5netcdf are back-ends for xarray. Adding h5netcdf just for the sake of
 # verifying impact on performance (which was nil)
-# Note : cdo 2.0.4 is not ompatible with ciclad's glibc
+# Note : cdo 2.0.4 is not compatible with ciclad's glibc
 # Note : nco 5.0.4 package is not well formed
 
 # Notebooks
-nb_modules="jupyter jupytext papermill texlive-core nb_conda"
+# texlive-core removed, june 2023, because the corresponding latex misses TLUtils.
+# Better use the system-installed latex
+nb_modules="jupyter jupytext papermill nb_conda"
 
 # C-ESM-EP
 cesmep_modules="numpy<1.24.0 cdms2 cdutil "
