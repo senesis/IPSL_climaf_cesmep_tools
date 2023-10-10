@@ -155,7 +155,7 @@ if [ $env_install = yes ] ; then
     log=env_install.log
     
     # Init variables for swiss_knife.sh
-    export ANA=$conda_module  where=$env_dir python="python=3.9" channels="-c conda-forge -c r"
+    export ANA=$conda_module  where=$env_dir python="python=3.10" channels="-c conda-forge -c r"
     export env=$env_label create=yes install=yes  mamba=yes 
 
     # Source list of packages/modules if not set through an env. variable
@@ -173,7 +173,7 @@ fi
 
 
 if [ $climaf_install = yes ] ; then 
-    echo -e "\tInstalling Climaf branch $climaf_branch at: "
+    echo -e "\tInstalling Climaf branch or tag $climaf_branch at: "
     echo -e "\t\t$climaf_dir/$climaf_label"
     #echo "------------------------------------------------------------------------------------------"
     bin_dir=$(mkdir -p $bin_dir; cd $bin_dir; pwd)

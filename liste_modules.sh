@@ -13,8 +13,8 @@
 system_modules="bash ncurses vim emacs" 
 
 # CliMAF
-climaf_modules="natsort ujson xarray netcdf4 h5netcdf cftime yaml pyyaml sphinx pip:pdflatex"
-climaf_exec="cdo<2.0.4 ncl imagemagick fonts-conda-forge ncview nco!=5.0.4 exiv2 perl ipython pipenv"
+climaf_modules="natsort ujson xarray netcdf4 h5netcdf cftime yaml pyyaml sphinx matplotlib cartopy pip:pdflatex"
+climaf_exec="cdo!=2.0.4 ncl imagemagick fonts-conda-forge ncview nco!=5.0.4 exiv2 perl ipython pipenv"
 # Note: CliMAF also needs pdftk, but there is no conda package for that, only a Ubuntu package
 # Note : netcdf4 and h5netcdf are back-ends for xarray. Adding h5netcdf just for the sake of
 # verifying impact on performance (which was nil)
@@ -24,7 +24,7 @@ climaf_exec="cdo<2.0.4 ncl imagemagick fonts-conda-forge ncview nco!=5.0.4 exiv2
 # Notebooks
 # texlive-core removed, june 2023, because the corresponding latex misses TLUtils.
 # Better use the system-installed latex
-nb_modules="jupyter jupytext papermill nb_conda"
+nb_modules="jupyter jupytext papermill " #nb_conda"
 
 # C-ESM-EP
 cesmep_modules="numpy<1.24.0 cdms2 cdutil "
@@ -35,8 +35,8 @@ r_modules="r-irkernel r-evd r-ncdf4 r-foreach r-doParallel r-goftest Cython"
 evt_modules="esmvaltool iris"
 
 # General modules
-general_modules="dask joblib dask-jobqueue windspharm pandas regionmask geopandas gdal matplotlib  basemap "
-#general_modules="dask joblib dask-jobqueue windspharm pandas regionmask geopandas gdal matplotlib  basemap global-land-mask"
+general_modules="dask joblib dask-jobqueue windspharm pandas regionmask geopandas gdal basemap "
+#general_modules="dask joblib dask-jobqueue windspharm pandas regionmask geopandas gdal basemap global-land-mask"
 
 # Aggregates all modules
 modules="$system_modules $climaf_modules $climaf_exec $cesmep_modules $general_modules $nb_modules $evt_modules $r_modules "

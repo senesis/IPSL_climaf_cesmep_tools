@@ -41,13 +41,13 @@ set -e
 # All variables to set stand below this line
 #-----------------------------------------------------------------------------------------------------
 
-# Which is the reference CliMAF repository (note : you may supersede
-# CliMAF code later, when using the container on Irene)
-climaf_repository=http://github.com/rigoudyg/climaf.git
+# If keep_climaf is yes, use local directory 'climaf'
+keep_climaf=no
 
-# Name of the CliMAF branch or tag to include (note : you may supersede
-# CliMAF code later, when using the container on Irene)
-climaf_branch=V3.0_IPSL1
+# Otherwise, which is the reference CliMAF repository 
+climaf_repository=http://github.com/rigoudyg/climaf.git
+# And name of the CliMAF branch or tag to include 
+climaf_branch=V3.0_IPSL8
 
 # user@machine for the machine hosting the reference conda environment
 remote_conda_env_machine=ssenesi@spirit1.ipsl.fr
@@ -69,7 +69,7 @@ archives_dir_on_gateway=/scratchu/ssenesi
 
 # Which are the targets on supercomputers :
 # a string of white space separated  value such as user@irene-fr.ccc.cea.fr:/some/dir/
-archives_dir_on_hpc="upe47jz@jean-zay.idris.fr:/gpfswork/rech/psl/commun/Tools/cesmep/ senesis@irene-fr.ccc.cea.fr:/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/"
+archives_dir_on_hpc="upe47jz@jean-zay.idris.fr:/gpfswork/rech/psl/commun/Tools/cesmep_environment/ senesis@irene-fr.ccc.cea.fr:/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/"
 # Choose a (local) working directory
 WD=./
 
@@ -104,9 +104,11 @@ echo "name: $env_name" > env.yml
 sed -e '$ d' -e '1 d' tmp_environment_full.yml >> env.yml
 rm tmp_environment_full.yml
 
-
+if [ $keep_climaf = no ] ; then
+    rm -fR climaf
+fi
 if [ ! -d climaf ] ; then
-    echo "Getting CliMAF code for branch $climaf_branch"
+    echo "Getting CliMAF code for branch or tag $climaf_branch"
     time git clone -b $climaf_branch $climaf_repository
 else
     echo "Using local CliMAF directory"
@@ -180,11 +182,20 @@ sudo chmod +r $archive
 
 
 echo
-echo "Pushing image archive to HPC center(s), using gateway $gateway"
-echo "-------------------------------------------------------------"
+echo "Pushing image archive to the gateway to HPC center(s), command is : "
+echo "   scp -p $archive $gateway:$archives_dir_on_gateway"
+echo "--------------------------------------------------------------------"
 scp -p $archive $gateway:$archives_dir_on_gateway
 for hpc in $archives_dir_on_hpc ; do 
-    echo "Copying image on $hpc"
+    echo "Pushing image from gateway to ${hpc%:*} using command:"
+    echo "   ssh -tt $gateway \"cd $archives_dir_on_gateway; scp -p $archive_name $hpc\""
     echo "Next password is for ${hpc%:*} (maybe with first the password for $gateway)"
     ssh -tt $gateway "cd $archives_dir_on_gateway; scp -p $archive_name $hpc"
+    if [[ $hpc = *jean-zay* ]] ; then
+	echo <<-EOT
+	     On jean-zay-pp you must execute something like
+	 	module load singularity
+		singularity build ${archive_name/.tar/.sif} docker-archive://${hpc#*:}/$archive_name
+	EOT
+    fi
 done
