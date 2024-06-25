@@ -16,7 +16,7 @@
 
 # install locations use parameters defined below. If test_install_dir is not set, they are :
 # -------------------------------------------------------------------------------------------
-#  - for climaf-notebook script: $bin_dir/notebook_env${env_label}_climaf${climaf_label}
+#  - for climaf_notebook script: $bin_dir/notebook_env${env_label}_climaf${climaf_label}
 #  - for environment module    : $module_dir/env${env_label}_climaf${climaf_label}
 #  - for C-ESM-EP              : $cesmep_dir
 #  - for a setenv_C-ESM-EP.sh  : $cesmep_dir/setenv_C-ESM-EP.sh
@@ -75,7 +75,7 @@ else
     module_dir=$test_install_dir/modules
 fi
 
-# Where should we put command 'climaf-notebook'
+# Where should we put command 'climaf_notebook'
 if [ -z $test_install_dir ] || [ $install_dir ]; then 
     bin_dir=${bin_dir:-/net/nfs/tools/Users/SU/jservon/bin}
 else
@@ -160,6 +160,7 @@ if [ $env_install = yes ] ; then
 
     # Source list of packages/modules if not set through an env. variable
     [ -z $modules ] && . $dir/liste_modules.sh
+    export do_test
     $dir/swiss_knife.sh "$modules" > $log 2>&1
 
     [ $? -ne 0 ] && echo "Issue when creating the conda environment - see $log" && exit 1
@@ -216,7 +217,7 @@ if [ $climaf_install = yes ] || [ $env_install = yes ] ; then
     #
     echo -e "\tCreating the script for launching notebooks at \n\t\t$nb_path "
     sed -e "s^MODULE_PATH^$module_path^g" -e "s^USER_PORTS^$user_ports^g" \
-	$dir/climaf-notebook_template > $nb_path
+	$dir/climaf_notebook_template > $nb_path
     chmod +x $nb_path
     [ $writeable = yes ] && chmod -f g+w $nb_path 2>/dev/null
 fi

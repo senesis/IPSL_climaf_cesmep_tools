@@ -13,8 +13,9 @@
 system_modules="bash ncurses vim emacs" 
 
 # CliMAF
-climaf_modules="natsort ujson xarray netcdf4 h5netcdf cftime yaml pyyaml sphinx matplotlib cartopy pip:pdflatex"
+climaf_modules="natsort ujson xarray netcdf4 h5netcdf cftime yaml pyyaml sphinx matplotlib pyproj proj cartopy geocat-viz intake intake_esm pip:pdflatex"
 climaf_exec="cdo!=2.0.4 ncl imagemagick fonts-conda-forge ncview nco!=5.0.4 exiv2 perl ipython pipenv"
+
 # Note: CliMAF also needs pdftk, but there is no conda package for that, only a Ubuntu package
 # Note : netcdf4 and h5netcdf are back-ends for xarray. Adding h5netcdf just for the sake of
 # verifying impact on performance (which was nil)
@@ -24,7 +25,7 @@ climaf_exec="cdo!=2.0.4 ncl imagemagick fonts-conda-forge ncview nco!=5.0.4 exiv
 # Notebooks
 # texlive-core removed, june 2023, because the corresponding latex misses TLUtils.
 # Better use the system-installed latex
-nb_modules="jupyter jupytext papermill " #nb_conda"
+nb_modules="jupyter notebook<7.0.0 jupytext papermill nb_conda"
 
 # C-ESM-EP
 cesmep_modules="numpy<1.24.0 cdms2 cdutil "

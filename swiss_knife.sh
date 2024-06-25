@@ -34,6 +34,7 @@ modules=$1
 create=${create:-no}  # Créer l'env si un arg fourni
 ANA=${ANA:-anaconda3-py/2021.11}
 install=${install:-no}  # Installer ou pas les modules (par défaut : test seulement)
+do_test=${do_test:-yes}  # Tester ou pas les modules 
 mamba=${mamba:-no}
 env=${env:-test_import}
 where=${where:-/net/nfs/tools/Users/SU/jservon/spirit-2021.11_envs}
@@ -114,16 +115,18 @@ for module in $modules; do
 	    $inst $module > $log
 	fi
     fi
-    # Useful ?
-    if [ $import != last ] ; then 
-	sublist=$sublist" "$module
-    else
-	sublist=$module
-    fi
-    echo "Importing or executing modules ["$sublist" ]" 
-    if ! python $test_import "$sublist" ; then
-	echo "Issue when importing $module, maybe check conda install log $log"
-	exit 1
+    if [ $do_test = yes ]; then
+	# Useful ?
+	if [ $import != last ] ; then 
+	    sublist=$sublist" "$module
+	else
+	    sublist=$module
+	fi
+	echo "Importing or executing modules ["$sublist" ]" 
+	if ! python $test_import "$sublist" ; then
+	    echo "Issue when importing $module, maybe check conda install log $log"
+	    exit 1
+	fi
     fi
     echo 
 done

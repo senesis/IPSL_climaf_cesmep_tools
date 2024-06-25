@@ -197,5 +197,11 @@ for hpc in $archives_dir_on_hpc ; do
 	 	module load singularity
 		singularity build ${archive_name/.tar/.sif} docker-archive://${hpc#*:}/$archive_name
 	EOT
+    if [[ $hpc = *irene* ]] ; then
+	echo <<-EOT
+	     On Irene you must execute something like 
+	     	export PCOCC_CONFIG_PATH=${hpc#*:}/.config/pcocc
+	 	pcocc-rs image import docker-archive://${hpc#*:}/$archive_name ipsl:cesmep_container
+	EOT
     fi
 done

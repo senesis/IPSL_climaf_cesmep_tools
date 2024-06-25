@@ -30,6 +30,15 @@ setenv TMPDIR $climaf_cache
 # For NCL colormaps
 setenv NCARG_ROOT CONDA_ENV
 
+# For PROJ library data
+setenv PROJ_DATA CONDA_ENV/proj
+
+# Note from https://scitools.org.uk/cartopy : If you need to increase
+# the speed of plots and don’t need to worry about thread safety in
+# your application, you can set the environment variable
+# PYPROJ_GLOBAL_CONTEXT=ON to make the projection calculations faster.
+setenv PYPROJ_GLOBAL_CONTEXT ON
+
 # Next for CDMS2
 setenv HDF5_DISABLE_VERSION_CHECK 1
 setenv UVCDAT_ANONYMOUS_LOG False
@@ -38,6 +47,6 @@ setenv UVCDAT_ANONYMOUS_LOG False
 #puts stderr "CliMAF cache is $climaf_cache"
 
 # Define an alias for the notebook script
-set-function climaf-notebook {
+set-function climaf_notebook {
   srun --mem-per-cpu=9G  --time=60 $* --pty NB_SCRIPT
   }
