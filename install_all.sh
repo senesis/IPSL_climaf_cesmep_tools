@@ -189,8 +189,8 @@ if [ $climaf_install = yes ] ; then
 	echo -e -n "\t\tInstall done, beginning test; in case of failure, look at ~/tmp/tests ..."
 	test_modules="netcdfbasics period cache classes functions operators standard_operators "
 	test_modules="$test_modules operators_derive operators_scripts cmacro driver dataloc "
-	test_modules="$test_modules find_files html example_data_retrieval example_index_html mcdo"
-	#example_data_plot
+	test_modules="$test_modules find_files html example_data_retrieval mcdo"
+	graphic_modules="example_data_plot example_index_html" 
 	[ ${setx:-no} = yes ] && set +x
 	module load $conda_module 
 	conda deactivate 
@@ -198,7 +198,9 @@ if [ $climaf_install = yes ] ; then
 	[ ${setx:-no} = yes ] && set -x
 	cd $climaf_label/tests
 	./launch_tests_with_coverage.sh 1 3 "$test_modules" > $log 2>&1
-	[ $? -ne 0 ] && echo "CliMAF test did not succeed - see $log" && exit 1
+	[ $? -ne 0 ] && echo "General CliMAF tests did not succeed - see $log" && exit 1
+	./launch_tests_with_coverage.sh 1 3 "$graphic_modules" 0 spirit_IMv7 >> $log 2>&1
+	[ $? -ne 0 ] && echo "CliMAF tests for graphics did not succeed - see $log" && exit 1
 	echo -e "\t OK"
 	[ ${setx:-no} = yes ] && set +x
 	conda deactivate

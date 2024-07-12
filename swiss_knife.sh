@@ -122,7 +122,7 @@ for module in $modules; do
 	else
 	    sublist=$module
 	fi
-	echo "Importing or executing modules ["$sublist" ]" 
+	echo "Importing or executing modules ["$sublist"]" 
 	if ! python $test_import "$sublist" ; then
 	    echo "Issue when importing $module, maybe check conda install log $log"
 	    exit 1
