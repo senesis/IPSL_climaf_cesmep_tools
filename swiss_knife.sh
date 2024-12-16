@@ -5,7 +5,7 @@
 
 # The list of conda packages names is the first argument
 
-# Packages are installed through successive calls to 'conda install' or
+# Packages are installed through successive calls to 
 # 'mamba install', each followed by an import/exec test
 
 # If $import is set and != last, each import/exec phase do test all
@@ -15,7 +15,6 @@
 # If $install = no, just test the import / execution
 # If $create != no, creates environment $env
 # The environment is located with a full path, at $where
-# If $mamba = yes, mamba is used rather than conda
 # Use conda channels $channels if set
 # The conda base environment is activated by 'module load $ANA'
 
@@ -35,7 +34,6 @@ create=${create:-no}  # Créer l'env si un arg fourni
 ANA=${ANA:-anaconda3-py/2021.11}
 install=${install:-no}  # Installer ou pas les modules (par défaut : test seulement)
 do_test=${do_test:-yes}  # Tester ou pas les modules 
-mamba=${mamba:-no}
 env=${env:-test_import}
 where=${where:-/net/nfs/tools/Users/SU/jservon/spirit-2021.11_envs}
 import=${import:-last}  # sinon -> ré-importer à chaque étape tous les modules installés
@@ -44,8 +42,8 @@ import=${import:-last}  # sinon -> ré-importer à chaque étape tous les module
 dir=$(cd $(dirname $0); pwd)
 
 [ $create != no ] && [ $install = no ] && echo "Install set to yes" && install=yes
-set +x ; 
-module purge ; module load $ANA
+module purge ;
+module load $ANA
 
 CENV=$where/$env
 
@@ -63,27 +61,24 @@ else
 fi
 
 mkdir -p logs
-if [ "$create" != no ]; then
-    echo -n Creating env $CENV ...
-    rm -fR $CENV ; mkdir -p $where;
-    echo -e "\nconda create --prefix $CENV --yes $python > logs/create_$(basename $CENV)"
-    conda create --prefix $CENV --yes $python_spec > logs/create_$(basename $CENV) 2>&1
-    echo
-    conda activate $CENV
-    if [ $mamba = yes ] ; then 
-	echo Installing mamba
-	conda install --yes -c conda-forge mamba > logs/install_mamba_$(basename $CENV) 2>&1
-    fi
-else
-    conda activate $CENV 
-fi
 
-if [ $mamba = yes ] ; then 
-    inst="mamba" 
-else		
-    inst="conda"
+# Mamba base
+PATH=$dir/../mambaforge/bin:$PATH
+
+if [ "$create" != no ]; then
+    if [ "$create" = yes ]; then
+	echo -n Creating env $CENV ...
+	rm -fR $CENV ; mkdir -p $where;
+	echo -e "name: \ndependencies:\n  - python=3.10" > envir.yml
+	mamba env create --prefix $CENV --yes -f envir.yml > logs/create_$(basename $CENV) 2>&1
+    elif [ $create = add ]; then 
+	echo -n Complementing env $CENV ...
+    else
+	echo -n Unkwon option create=$create
+	exit 1
+    fi
 fi
-inst=$inst" install --yes $channels_spec -q "
+conda activate $CENV 
 
 # Path to a python code which "imports" each of the packages provided as first argument
 # Depending on a hard-coded table (module_names), it may :
@@ -109,10 +104,10 @@ for module in $modules; do
     if [ $install != no ] ; then 
 	if [[ $module == pip:* ]] ; then
 	    echo Installing with pip ...
-	    pip install ${module/pip:/} > $log
+	    python -m pip install ${module/pip:/} > $log
 	else
 	    echo Installing..
-	    $inst $module > $log
+	    mamba install --yes $channels_spec -q $module > $log
 	fi
     fi
     if [ $do_test = yes ]; then
@@ -130,4 +125,3 @@ for module in $modules; do
     fi
     echo 
 done
-	      

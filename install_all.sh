@@ -105,7 +105,7 @@ else
     env_dir=$test_install_dir/envs
 fi
 
-# Should we actually create this environment
+# Should we actually create or update this environment
 env_install=${env_install:-yes}
 
 # 3- About C-ESM-EP
@@ -138,7 +138,7 @@ email=${email:-jerome.servonnat@lsce.ipsl.fr}
 module -s purge
 [ ${setx:-no} = yes ] && set -x
 
-dir=$(cd $(dirname $0); pwd)
+dir=$(cd $(dirname $0); pwd); export dir
 env_dir=$(mkdir -p $env_dir ; cd $env_dir; pwd)
 cesmep_dir=$(mkdir -p $cesmep_dir ; cd $cesmep_dir; pwd)
 climaf_dir=$(mkdir -p $climaf_dir ; cd $climaf_dir; pwd)
@@ -150,23 +150,28 @@ module_path=$module_dir/env${env_label}_climaf${climaf_label}
 nb_path=$bin_dir/notebook_env${env_label}_climaf${climaf_label}
 
 if [ $env_install = yes ] ; then 
-    echo -e "\tCreating conda environment $env_label - this may take quite a while"
-    #echo "-------------------------------------------------------------"
+    echo -e "\tCreating or complementing conda environment $env_label - this may take quite a while"
+    #echo "----------------------------------------------------------------------------------------"
     log=env_install.log
     
     # Init variables for swiss_knife.sh
     export ANA=$conda_module  where=$env_dir python="python=3.10" channels="-c conda-forge -c r"
-    export env=$env_label create=yes install=yes  mamba=yes 
+    export env=$env_label create=${env_create:-yes} install=yes 
 
     # Source list of packages/modules if not set through an env. variable
-    [ -z $modules ] && . $dir/liste_modules.sh
+    [ -z "$modules" ] && . $dir/liste_modules.sh
     export do_test
-    $dir/swiss_knife.sh "$modules" > $log 2>&1
+    # Use bash -i so that 'conda activate' works
+    bash -i $dir/swiss_knife.sh "$modules" > $log 2>&1
 
     [ $? -ne 0 ] && echo "Issue when creating the conda environment - see $log" && exit 1
     
     # Copy packages list in the environment root dir
-    echo "modules=\"$modules\"" > $env_path/packages_list
+    if [ $env_create = yes ] ; then 
+	echo "modules=\"$modules\"" > $env_path/packages_list
+    else
+	echo "modules=\"$modules\"" >> $env_path/packages_list
+    fi
     echo -e "\tOK ! \n\tPackages list is available at $env_path/packages_list"
     [ $writeable = yes ] && chmod -R g+w $env_path 2>/dev/null
     chmod -f g+w $env_dir $log
@@ -210,7 +215,7 @@ if [ $climaf_install = yes ] ; then
     #
 fi
 
-if [ $climaf_install = yes ] || [ $env_install = yes ] ; then 
+if [ $climaf_install = yes ] || [ $env_install = yes -a $env_create != add ] ; then 
     echo -e "\tCreating the module file for the new CliMAF environment, at \n\t\t$module_path "
     sed -e "s^CLIMAF_DIR^${climaf_dir}/${climaf_label}^g" -e "s^CONDA_ENV^${env_path}^g" \
 	-e "s^CONDA_DIR^$conda_dir^g" -e "s^BIN_DIR^$bin_dir^g" -e "s^CLIMAF_LABEL^$climaf_label^g" \
