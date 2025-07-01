@@ -3,6 +3,8 @@
 # Create a docker container archive for that container and push it to Irene
 
 # Author : S.Sénési - june 2022 / january 2023
+# Change , 2024 : albeit CliMAF code is still included in the container, C-ESM-EP 
+#                 installs are configured to use a separately installed CliMAF
 
 # Pre-requisites :
 #------------------
@@ -16,7 +18,7 @@
 #     - have ssh access to that machine (preferably without password but with a key)
 #     - login shell on that machine must be able to activate conda
 #
-#  - for a gateway for Irene (e.g. Ciclad):
+#  - for a gateway for Irene and Jean-Zay (e.g. Ciclad):
 #     - have ssh access to that gateway (preferably without password but with a key)
 #     - have ssh access from that gateway to Irene
 #     - choose a location for a temporary file
