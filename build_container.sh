@@ -1,15 +1,14 @@
 # Create a docker container based on a reference conda environment on some machine (e.g. spirit)
-# Add Climaf sources to the container
-# Create a docker container archive for that container and push it to Irene
+# Create a docker container archive for that container and push it to various HPC centers
 
 # Author : S.Sénési - june 2022 / january 2023
-# Change , 2024 : albeit CliMAF code is still included in the container, C-ESM-EP 
-#                 installs are configured to use a separately installed CliMAF
+# Change , 2024 : CliMAF code is no more included in the container
 
 # Pre-requisites :
 #------------------
-#  - on current machine : have Docker installed (see
-#    https://docs.docker.com/get-docker/) and have sudo privilege
+#  - on current machine : have Docker and its buildx package installed 
+#    (see https://docs.docker.com/get-docker/) and have sudo privilege
+#    (Note for Debian : apt-get install docker-buildx-plugin)
 #
 #  - have http access to GitHub (for CliMAF)
 #
@@ -18,12 +17,12 @@
 #     - have ssh access to that machine (preferably without password but with a key)
 #     - login shell on that machine must be able to activate conda
 #
-#  - for a gateway for Irene and Jean-Zay (e.g. Ciclad):
+#  - for a gateway for the HPC machines (e.g. spirit):
 #     - have ssh access to that gateway (preferably without password but with a key)
 #     - have ssh access from that gateway to Irene
 #     - choose a location for a temporary file
 #
-#  - set the various variables documented below, from 'climaf_branch' to 'archives_dir'
+#  - set the various variables documented below, from 'climaf_branch' to at least 'archives_dir'
 
 
 # Note : upon run, the user will have to provide passwords interactively :
@@ -43,35 +42,28 @@ set -e
 # All variables to set stand below this line
 #-----------------------------------------------------------------------------------------------------
 
-# If keep_climaf is yes, use local directory 'climaf'
-keep_climaf=no
-
-# Otherwise, which is the reference CliMAF repository 
-climaf_repository=http://github.com/rigoudyg/climaf.git
-# And name of the CliMAF branch or tag to include 
-climaf_branch=V3.0_IPSL8
-
 # user@machine for the machine hosting the reference conda environment
 remote_conda_env_machine=ssenesi@spirit1.ipsl.fr
 
-# Ubuntu release for that machine (for exact reproduction of environment)
+# Ubuntu release ran by that machine (for exact reproduction of environment)
 ubuntu_version="20.04"
 
 # Name or full path of the reference conda environment
-remote_conda_env=/net/nfs/tools/Users/SU/jservon/spirit-2021.11_envs/20230611
+remote_conda_env=/net/nfs/tools/Users/SU/jservon/spirit-2021.11_envs/20240920
 
 # May choose a name for the created conda environment, or use a sensible default
-env_name=${env_name:-$(basename $remote_conda_env)}_${climaf_branch}
+env_name=${env_name:-$(basename $remote_conda_env)}
 
 # user@machine for the machine used as a gateway to Irene (for scp)
-gateway=ssenesi@ciclad.ipsl.upmc.fr
+gateway=ssenesi@spirit2.ipsl.fr
 
 # Choose a directory on the gateway for the docker container archive (must exist before run)
 archives_dir_on_gateway=/scratchu/ssenesi
 
 # Which are the targets on supercomputers :
 # a string of white space separated  value such as user@irene-fr.ccc.cea.fr:/some/dir/
-archives_dir_on_hpc="upe47jz@jean-zay.idris.fr:/gpfswork/rech/psl/commun/Tools/cesmep_environment/ senesis@irene-fr.ccc.cea.fr:/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/"
+archives_dir_on_hpc="upe47jz@jean-zay.idris.fr:/gpfswork/rech/psl/commun/Tools/cesmep_environment/"
+archives_dir_on_hpc+=" senesis@irene-fr.ccc.cea.fr:/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/"
 # Choose a (local) working directory
 WD=./
 
@@ -106,23 +98,12 @@ echo "name: $env_name" > env.yml
 sed -e '$ d' -e '1 d' tmp_environment_full.yml >> env.yml
 rm tmp_environment_full.yml
 
-if [ $keep_climaf = no ] ; then
-    rm -fR climaf
-fi
-if [ ! -d climaf ] ; then
-    echo "Getting CliMAF code for branch or tag $climaf_branch"
-    time git clone -b $climaf_branch $climaf_repository
-else
-    echo "Using local CliMAF directory"
-fi
-echo "------------------------------------------------------------------------------------------------"
-
 
 echo
 echo "Building Docker container $image_name"
 echo "--------------------------------------------"
 cat > Dockerfile <<-EOF
-	# Incorporating CliMAF and dependencies in a docker container based on Ubuntu $ubuntu_version
+	# Incorporating CliMAF dependencies in a docker container based on Ubuntu $ubuntu_version
 	
 	FROM ubuntu:$ubuntu_version
 	
@@ -134,9 +115,9 @@ cat > Dockerfile <<-EOF
 	RUN apt-get install -y --fix-missing wget && \\
 	    apt-get install -y --fix-missing texlive texlive-xetex && \\
 	    apt-get install -y --fix-missing pdftk && \\
-	    apt-get clean && \\
+	    apt-get clean && \\	     
 	    rm -rf /var/lib/apt/lists/*
-	
+
 	# Install minimamba
 	ENV CONDA_DIR=/opt/mamba
 	RUN wget --quiet \\
@@ -150,6 +131,7 @@ cat > Dockerfile <<-EOF
 	# Install relevant conda environment from yml file
 	WORKDIR /src
 	COPY env.yml .
+	RUN conda update -n base -c conda-forge conda
 	RUN mamba update -y mamba && \\
 	    mamba env create --name ${env_name} --file env.yml && \\
 	    mamba clean --all -y
@@ -158,12 +140,6 @@ cat > Dockerfile <<-EOF
 	ENV PATH=\$CONDA_DIR/envs/${env_name}/bin:\$CONDA_DIR/condabin:\$PATH
 	ENV LD_LIBRARY_PATH=\$CONDA_DIR/envs/${env_name}/lib:\$LD_LIBRARY_PATH
 
-	# Install CliMAF 
-	COPY climaf /src/climaf	
-	ENV CLIMAF=/src/climaf
-	ENV PATH=/src/climaf/bin:\$PATH
-	ENV PYTHONPATH=/src/climaf:\$PYTHONPATH
-
 	# Prepare for run time	
 	WORKDIR /home
 	CMD ["bash"]
@@ -171,8 +147,7 @@ cat > Dockerfile <<-EOF
 
 echo
 echo "Next requested password (if any) is the local sudo password"
-time sudo docker build -t $image_name . -f Dockerfile
-
+time sudo docker buildx build -t $image_name . -f Dockerfile
 
 echo
 echo "Creating container archive $archive_name (in directory $archives_dir)"
