@@ -94,7 +94,6 @@ climaf_install=${climaf_install:-yes}
 # Which conda is used (through a module) and where is its base environment
 conda_module=${conda_module:-anaconda3-py/2021.11}
 conda_dir=${conda_dir:-/net/nfs/tools/python-anaconda/Anaconda3-2021.11/}
-#/net/nfs/tools/python-anaconda/miniconda3
 
 # The label for the created conda_environment
 env_label=${env_label:-$(date +%Y%m%d)}
@@ -122,7 +121,7 @@ cesmep_dir=${cesmep_dir:-${test_install_dir:-.}/cesmep_test}
 
 # If you set CESMEP_CLIMAF_CACHE to the empty string, your standard
 # climaf_cache will be used. Take care that this may pollute the test
-# with results from another CLiMAF code.
+# with results from another CliMAF code.
 CESMEP_CLIMAF_CACHE=${CESMEP_CLIMAF_CACHE:-/scratchu/$USER/cesmep_test_cache}
 
 # Should we actually install and test CESMEP. If yes, provide details

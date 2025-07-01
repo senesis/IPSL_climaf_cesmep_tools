@@ -2,7 +2,9 @@
 1- Tools for creating for CliMAF a tested conda environment, a tested
 CliMAF install, a module, and a notebook launcher.
 
-2- a tool for creating a Docker container archive of this environment, plus CliMAF code 
+2- a tool for creating a Docker container archive of this environment, and to install it on HPC centers
+   (note : installing CliMAF and C-ESM-EP at HPC centers is done using scripts push_to_centers
+   located in respective code dirs)
 
 3- doc for using this environment with C-ESM-EP on Spirit 
 

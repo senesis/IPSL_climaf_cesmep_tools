@@ -50,7 +50,7 @@ evt_modules="esmvaltool iris"
 # General modules
 #--------------
 # 2024/09 : remove global-land-mask , coz problems
-general_modules="dask joblib dask-jobqueue windspharm pandas regionmask geopandas gdal basemap "
+general_modules="dask joblib dask-jobqueue windspharm pandas regionmask geopandas gdal basemap autopep8"
 
 # Aggregates all modules
 modules="$system_modules $climaf_modules $climaf_exec $cesmep_modules $general_modules $nb_modules $evt_modules $r_modules "

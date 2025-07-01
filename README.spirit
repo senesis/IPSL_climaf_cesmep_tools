@@ -1,23 +1,23 @@
 User guide for CliMAF on Spirit 
 --------------------------------
 
-Issue a 'module load' command with argument e.g. /net/nfs/tools/Users/SU/modulefiles/jservon/climaf/spirit_0
+Issue a 'module load' command with argument e.g. /net/nfs/tools/Users/SU/modulefiles/jservon/climaf/env20240920_climafV3.1_IPSL15
 (the exact value is displayed upon execution of install_all.sh)
 And refer to CLiMAF doc
 
-For executing a notebook with full CliMAF environmment, use e.g. script /net/nfs/tools/Users/SU/jservon/bin/climaf-notebook
+For executing a notebook with full CliMAF environmment, use e.g. script /net/nfs/tools/Users/SU/jservon/bin/notebook_env20240920_climafV3.1_IPSL15
 
 
 
 User guide for C-ESM-EP on Spirit
 ---------------------------------
 
-The only specifics for running C-ESM-EP on spirit[1-2].ipsl.fr are :
+The only specifics for running your own C-ESM-EP install on spirit[1-2].ipsl.fr are :
 
   - in standard_comparison/setenv_C-ESM-EP.sh :
      * locate line beginning with emodule=
-     * set there the path for a module supporting climaf and cesmep, as e.g. (on july 2022)
-       /net/nfs/tools/Users/SU/modulefiles/jservon/climaf/spirit_0
+     * set there the path for a module supporting climaf and cesmep, as e.g. (on july 2025)
+       /net/nfs/tools/Users/SU/modulefiles/jservon/climaf/env20240920_climafV3.1_IPSL15
        
   - in params_<component>.py :
      * set a value for variable 'queue', if necessary (e.g. 'zen4', 'zen16' ...)
